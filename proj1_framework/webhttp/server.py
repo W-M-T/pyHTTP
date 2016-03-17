@@ -27,9 +27,9 @@ class ConnectionHandler(threading.Thread):
     def handle_connection(self):
         """Handle a new connection"""
         print("Hi")
-        conn_socket.recv(4096)
-        conn_socket.send("Hello world!")
-        conn_socket.close()
+        self.conn_socket.recv(4096)
+        self.conn_socket.send("Hello world!")
+        self.conn_socket.close()
         
     def run(self):
         """Run the thread of the connection handler"""

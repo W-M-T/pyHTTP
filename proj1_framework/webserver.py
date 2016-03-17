@@ -1,5 +1,6 @@
 import argparse
 import webhttp.server
+import time
 
 # Create and start the HTTP Server
 # Use `python webserver.py --help` to display command line options
@@ -15,9 +16,12 @@ if __name__ == '__main__':
     server = webhttp.server.Server(args.address, args.port, args.timeout)
     try:
         server.run()
+        print("END")
     except KeyboardInterrupt:
+        print ("TRY TO SHUT DOWN")
         server.shutdown()
-        print ("")
+        print ("SHUTTING DOWN")
+        time.sleep(1)
             
 
 

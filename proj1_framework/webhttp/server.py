@@ -26,7 +26,10 @@ class ConnectionHandler(threading.Thread):
     
     def handle_connection(self):
         """Handle a new connection"""
-        pass
+        print("Hi")
+        conn_socket.recv(4096)
+        conn_socket.send("Hello world!")
+        conn_socket.close()
         
     def run(self):
         """Run the thread of the connection handler"""
@@ -48,12 +51,26 @@ class Server:
         self.server_port = server_port
         self.timeout = timeout
         self.done = False
+        
+        self.connlist = []
     
     def run(self):
         """Run the HTTP Server and start listening"""
+        #socket.settimeout(timeout)
+        print("server hello")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((self.hostname, self.server_port))#try catch enzo nog
+        s.listen(10)#parameter maken?
+        
         while not self.done:
-            pass
+            (client_socket, address) = s.accept()
+            ch = ConnectionHandler(client_socket, adress, self.timeout)
+            self.connlist.append(ch)
+            ch.run()
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
+        #Ook connection handlers beëindigen?
+        for ch in self.connlist:#niet hoe het hoort
+            ch.exit()
         self.done = True

@@ -5,6 +5,8 @@ This module contains a HTTP server
 
 import threading
 import socket
+import select
+import platform
 
 
 class ConnectionHandler(threading.Thread):
@@ -53,7 +55,14 @@ class Server:
         self.done = False
         
         self.connlist = []
-    
+
+    def acceptcon(self, s):
+        (client_socket, address) = s.accept()
+        
+        ch = ConnectionHandler(client_socket, address, self.timeout)
+        self.connlist.append(ch)
+        ch.run()
+        
     def run(self):
         """Run the HTTP Server and start listening"""
         #socket.settimeout(timeout)
@@ -61,12 +70,16 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, self.server_port))#try catch enzo nog
         s.listen(10)#parameter maken?
-        
-        while not self.done:
-            (client_socket, address) = s.accept()
-            ch = ConnectionHandler(client_socket, address, self.timeout)
-            self.connlist.append(ch)
-            ch.run()
+
+        if platform.system() == 'Windows':
+            s.settimeout(1)
+            while not self.done:
+                try:
+                    self.acceptcon(s)
+                except (BlockingIOError, socket.timeout):
+                    pass
+        else:
+            self.acceptcon(s)
     
     def shutdown(self):
         """Safely shut down the HTTP server"""

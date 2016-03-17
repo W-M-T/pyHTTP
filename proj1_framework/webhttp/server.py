@@ -70,7 +70,7 @@ class Server:
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
-        #Ook connection handlers beëindigen?
+        #Ook connection handlers beeindigen?
         for ch in self.connlist:#niet hoe het hoort
             ch.exit()
         self.done = True

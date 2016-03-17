@@ -64,7 +64,7 @@ class Server:
         
         while not self.done:
             (client_socket, address) = s.accept()
-            ch = ConnectionHandler(client_socket, adress, self.timeout)
+            ch = ConnectionHandler(client_socket, address, self.timeout)
             self.connlist.append(ch)
             ch.run()
     

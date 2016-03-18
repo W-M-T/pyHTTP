@@ -36,7 +36,7 @@ class ConnectionHandler(threading.Thread):
         print("Parsing...")
         parsed_requests = self.parser.parse_requests(buf)
         print("Parsed requests")
-        self.conn_socket.send("Hello world!")
+        self.conn_socket.send(b"Hello world!")
         self.conn_socket.close()
         
     def run(self):

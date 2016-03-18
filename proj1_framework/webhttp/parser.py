@@ -27,6 +27,10 @@ class RequestParser:
         http_requests = []
         for request in requests:
             http_request = webhttp.message.Request()
+            for line in request:
+            	if line.contains(':'):
+            		parts = line.split(':', 1)
+            		http_request.set_header(parts[0], parts[1])
             http_requests.append(http_request)
         
         return http_requests

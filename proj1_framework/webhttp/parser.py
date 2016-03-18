@@ -23,14 +23,15 @@ class RequestParser:
             list of webhttp.Request
         """
         requests = self.split_requests(buff)
-        
         http_requests = []
         for request in requests:
             http_request = webhttp.message.Request()
-            for line in request:
-            	if line.contains(':'):
-            		parts = line.split(':', 1)
-            		http_request.set_header(parts[0], parts[1])
+            lines = request.split('\r\n')
+            for line in lines:
+                if ':' in line:
+                    parts = line.split(":", 1)
+                    print (parts)
+                    http_request.set_header(parts[0], parts[1])
             http_requests.append(http_request)
         
         return http_requests

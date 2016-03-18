@@ -7,12 +7,13 @@ import threading
 import socket
 import select
 import platform
+from webhttp import parser
 
 
 class ConnectionHandler(threading.Thread):
     """Connection Handler for HTTP Server"""
-
-    def __init__(self, conn_socket, addr, timeout):
+ 
+    def __init__(self, conn_socket, addr, timeout, parser):
         """Initialize the HTTP Connection Handler
         
         Args:
@@ -25,11 +26,16 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket = conn_socket
         self.addr = addr
         self.timeout = timeout
+        self.parser = parser
     
     def handle_connection(self):
         """Handle a new connection"""
-        print("Hi")
-        self.conn_socket.recv(4096)
+        print("Handling connection")
+        buf = self.conn_socket.recv(4096)
+        print("Received input:\n" + str(buf))
+        print("Parsing...")
+        parsed_requests = self.parser.parse_requests(buf)
+        print("Parsed requests")
         self.conn_socket.send("Hello world!")
         self.conn_socket.close()
         
@@ -53,13 +59,14 @@ class Server:
         self.server_port = server_port
         self.timeout = timeout
         self.done = False
+        self.parser = parser.RequestParser()
         
         self.connlist = []
 
     def acceptcon(self, s):
         (client_socket, address) = s.accept()
         
-        ch = ConnectionHandler(client_socket, address, self.timeout)
+        ch = ConnectionHandler(client_socket, address, self.timeout, self.parser)
         self.connlist.append(ch)
         ch.run()
         

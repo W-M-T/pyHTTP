@@ -13,7 +13,7 @@ from webhttp import parser
 class ConnectionHandler(threading.Thread):
     """Connection Handler for HTTP Server"""
  
-    def __init__(self, conn_socket, addr, timeout, parser):
+    def __init__(self, conn_socket, addr, timeout, rqparser, composer):
         """Initialize the HTTP Connection Handler
         
         Args:
@@ -26,18 +26,29 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket = conn_socket
         self.addr = addr
         self.timeout = timeout
-        self.parser = parser
+        self.rqparser = rqparser
+        self.composer = composer
     
-    def handle_connection(self):
-        """Handle a new connection"""
-        print("Handling connection")
-        buf = self.conn_socket.recv(4096)
-        print("Received input:\n" + str(buf))
-        print("Parsing...")
-        parsed_requests = self.parser.parse_requests(buf)
-        print("Parsed requests")
-        self.conn_socket.send(b"Hello world!")
-        self.conn_socket.close()
+    def handle_connection(self):#Op het moment nog geen persistence/pipelining
+        conn_socket.settimeout(timeout)
+        try:
+            """Handle a new connection"""
+            print("Handling connection")
+            buf = self.conn_socket.recv(4096)
+            print("Received input:\n" + str(buf))
+            print("Parsing...")
+            parsed_requests = self.rqparser.parse_requests(buf)
+            print("Parsed requests")
+            for request in parsed_requests:
+                #check of de header close is
+                print("Finding response")
+                response = composer.compose_response(request)
+                print("Sending response")
+                self.conn_socket.send(response.__str__())
+                
+        except (socket.timeout, socket.error):
+            pass
+        self.conn_socket.close()#timeout nog regelen
         
     def run(self):
         """Run the thread of the connection handler"""

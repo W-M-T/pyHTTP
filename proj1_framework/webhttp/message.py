@@ -3,12 +3,7 @@
 This modules contains classes for representing HTTP responses and requests.
 """
 
-reasondict = {
-    # Dictionary for code reasons
-    # Format: code : "Reason"
-    500 : "Internal Server Error"
-}
-
+import webhttp.consts as Consts
 
 class Message(object):
     """Class that stores a HTTP Message"""
@@ -49,8 +44,16 @@ class Message(object):
         Returns:
             str: representation the can be sent over socket
         """
-        message = ""
-        return message
+
+        header = ""
+
+        headernames = Consts.GENERAL_HEADERS + Consts.REQUEST_HEADERS + Consts.RESPONSE_HEADERS + Consts.ENTITY_HEADERS 
+
+        for name in headernames:
+            if self.get_header(name) != "":
+                header += name + ": " + self.get_header(name) + "\r\n"
+
+        return header + "\r\n" + self.body
 
 
 class Request(Message):
@@ -65,11 +68,15 @@ class Request(Message):
     def __str__(self):
         """Convert the Request to a string
 
+        [method] [URL] [version]
+        [headers]
+        [body]
+
         Returns:
             str: representation the can be sent over socket
         """
-        self.startline = ""
-        return super(Request, self).__str__()
+        self.startline = self.method + " " + self.uri + " " + self.version
+        return self.startline + "\r\n" + super(Request, self).__str__()
         
 
 class Response(Message):
@@ -83,8 +90,12 @@ class Response(Message):
     def __str__(self):
         """Convert the Response to a string
 
+        [version] [status] [reason]
+        [headers]
+        [body]
+
         Returns:
             str: representation the can be sent over socket
         """
-        self.startline = ""                                      
-        return super(Response, self).__str__()
+        self.startline = self.version + " " + str(self.code) + " " + Consts.REASON_DICT[self.code]             
+        return self.startline + "\r\n" + super(Response, self).__str__()

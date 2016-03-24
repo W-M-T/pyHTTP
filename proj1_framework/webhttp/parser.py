@@ -22,9 +22,10 @@ class RequestParser:
         Returns:
             list of webhttp.Request
         """
-        requests = self.split_requests(buff)
+        requests = self.split_requests(buff.decode())
         http_requests = []
         for request in requests:
+            print(request)
             http_request = webhttp.message.Request()
             lines = request.split('\r\n')
             for line in lines:

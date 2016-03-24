@@ -5,6 +5,7 @@ This module contains a handler class for resources.
 
 import os
 import mimetypes
+#import urllib.parse
 import urlparse
 
 

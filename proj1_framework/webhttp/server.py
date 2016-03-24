@@ -8,12 +8,13 @@ import socket
 import select
 import platform
 from webhttp import parser
+from webhttp import composer
 
 
 class ConnectionHandler(threading.Thread):
     """Connection Handler for HTTP Server"""
  
-    def __init__(self, conn_socket, addr, timeout, parser):
+    def __init__(self, conn_socket, addr, timeout, rqparser, rspcomposer):
         """Initialize the HTTP Connection Handler
         
         Args:
@@ -26,18 +27,29 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket = conn_socket
         self.addr = addr
         self.timeout = timeout
-        self.parser = parser
+        self.rqparser = rqparser
+        self.rspcomposer = rspcomposer
     
-    def handle_connection(self):
-        """Handle a new connection"""
-        print("Handling connection")
-        buf = self.conn_socket.recv(4096)
-        print("Received input:\n" + str(buf))
-        print("Parsing...")
-        parsed_requests = self.parser.parse_requests(buf)
-        print("Parsed requests")
-        self.conn_socket.send("Hello world!")
-        self.conn_socket.close()
+    def handle_connection(self):#Op het moment nog geen persistence/pipelining
+        self.conn_socket.settimeout(self.timeout)
+        try:
+            """Handle a new connection"""
+            print("Handling connection")
+            buf = self.conn_socket.recv(4096)
+            print("Received input:\n" + str(buf))
+            print("Parsing...")
+            parsed_requests = self.rqparser.parse_requests(buf)
+            print("Parsed requests")
+            for request in parsed_requests:
+                #check of de header close is
+                print("Finding response")
+                response = self.rspcomposer.compose_response(request)
+                print("Sending response")
+                self.conn_socket.send(response.__str__())
+                
+        except (socket.timeout, socket.error):
+            pass
+        self.conn_socket.close()#timeout nog regelen
         
     def run(self):
         """Run the thread of the connection handler"""
@@ -59,14 +71,15 @@ class Server:
         self.server_port = server_port
         self.timeout = timeout
         self.done = False
-        self.parser = parser.RequestParser()
+        self.rqparser = parser.RequestParser()
+        self.rspcomposer = composer.ResponseComposer(timeout)
         
         self.connlist = []
 
     def acceptcon(self, s):
         (client_socket, address) = s.accept()
         
-        ch = ConnectionHandler(client_socket, address, self.timeout, self.parser)
+        ch = ConnectionHandler(client_socket, address, self.timeout, self.rqparser, self.rspcomposer)
         self.connlist.append(ch)
         ch.run()
         

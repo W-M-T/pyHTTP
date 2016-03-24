@@ -28,7 +28,7 @@ class ConnectionHandler(threading.Thread):
         self.addr = addr
         self.timeout = timeout
         self.rqparser = rqparser
-        self.composer = composer
+        self.rspcomposer = rspcomposer
     
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
         self.conn_socket.settimeout(self.timeout)
@@ -43,7 +43,7 @@ class ConnectionHandler(threading.Thread):
             for request in parsed_requests:
                 #check of de header close is
                 print("Finding response")
-                response = composer.compose_response(request)
+                response = rspcomposer.compose_response(request)
                 print("Sending response")
                 self.conn_socket.send(response.__str__())
                 
@@ -72,14 +72,14 @@ class Server:
         self.timeout = timeout
         self.done = False
         self.rqparser = parser.RequestParser()
-        self.composer = composer.ResponseComposer(timeout)
+        self.rspcomposer = composer.ResponseComposer(timeout)
         
         self.connlist = []
 
     def acceptcon(self, s):
         (client_socket, address) = s.accept()
         
-        ch = ConnectionHandler(client_socket, address, self.timeout, self.rqparser, composer)
+        ch = ConnectionHandler(client_socket, address, self.timeout, self.rqparser, self.rspcomposer)
         self.connlist.append(ch)
         ch.run()
         

@@ -14,6 +14,7 @@ class TestGetRequests(unittest.TestCase):
 
     def setUp(self):
         """Prepare for testing"""
+        print("Hi")
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect(("localhost", portnr))
         self.parser = webhttp.parser.ResponseParser()
@@ -26,11 +27,15 @@ class TestGetRequests(unittest.TestCase):
     def test_existing_file(self):
         """GET for a single resource that exists"""
         # Send the request
+        print("beforemakerequest")
         request = webhttp.message.Request()
         request.method = "GET"
         request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "close")
+        print("_____________________")
+        print(request.__str__())
+        print("_____________________")
         self.client_socket.send(str.encode(str(request)))
 
         # Test response

@@ -32,7 +32,8 @@ class ResponseComposer:
 
         """
         response = webhttp.message.Response()
-
+        #print("Hi")
+        print(request.uri)
         # Stub code
         response.code = 200
         response.set_header("Content-Length", 4)

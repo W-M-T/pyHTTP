@@ -31,7 +31,7 @@ class TestGetRequests(unittest.TestCase):
         request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "close")
-        self.client_socket.send(str(request))
+        self.client_socket.send(str.encode(str(request)))
 
         # Test response
         message = self.client_socket.recv(1024)

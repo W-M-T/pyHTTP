@@ -8,6 +8,7 @@ import socket
 import select
 import platform
 from webhttp import parser
+from webhttp import composer
 
 
 class ConnectionHandler(threading.Thread):
@@ -30,7 +31,7 @@ class ConnectionHandler(threading.Thread):
         self.composer = composer
     
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
-        conn_socket.settimeout(timeout)
+        self.conn_socket.settimeout(self.timeout)
         try:
             """Handle a new connection"""
             print("Handling connection")
@@ -70,14 +71,15 @@ class Server:
         self.server_port = server_port
         self.timeout = timeout
         self.done = False
-        self.parser = parser.RequestParser()
+        self.rqparser = parser.RequestParser()
+        self.composer = composer.ResponseComposer(timeout)
         
         self.connlist = []
 
     def acceptcon(self, s):
         (client_socket, address) = s.accept()
         
-        ch = ConnectionHandler(client_socket, address, self.timeout, self.parser)
+        ch = ConnectionHandler(client_socket, address, self.timeout, self.rqparser, composer)
         self.connlist.append(ch)
         ch.run()
         

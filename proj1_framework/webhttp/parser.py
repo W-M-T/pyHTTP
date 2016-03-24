@@ -28,7 +28,15 @@ class RequestParser:
             print(request)
             http_request = webhttp.message.Request()
             lines = request.split('\r\n')
-            for line in lines:
+            print(lines[0])
+            rq = lines[0].split()
+            if len(rq) != 3 || rq[2] != "HTTP/1.1":
+                pass#Geen geldige request
+            else
+                http_request.uri = rq[1]
+                http_request.method = rq[0]
+            lines[0]
+            for line in lines[1:]:
                 if ':' in line:
                     parts = line.split(":", 1)
                     print (parts)

@@ -43,7 +43,7 @@ class ConnectionHandler(threading.Thread):
             for request in parsed_requests:
                 #check of de header close is
                 print("Finding response")
-                response = rspcomposer.compose_response(request)
+                response = self.rspcomposer.compose_response(request)
                 print("Sending response")
                 self.conn_socket.send(response.__str__())
                 

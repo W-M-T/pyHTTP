@@ -14,7 +14,7 @@ from webhttp import composer
 class ConnectionHandler(threading.Thread):
     """Connection Handler for HTTP Server"""
  
-    def __init__(self, conn_socket, addr, timeout, rqparser, composer):
+    def __init__(self, conn_socket, addr, timeout, rqparser, rspcomposer):
         """Initialize the HTTP Connection Handler
         
         Args:

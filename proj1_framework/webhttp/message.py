@@ -3,23 +3,7 @@
 This modules contains classes for representing HTTP responses and requests.
 """
 
-import webhttp.consts as consts
-
-reasondict = {
-    # Dictionary for code reasons
-    # Format: code : "Reason"
-    200 : "OK",
-    301 : "Moved Permanently",
-    302 : "Moved Temporarily",
-    304 : "Not modified",
-    400 : "Bad Request",
-    401 : "Unauthorized",
-    403 : "Forbidden",
-    404 : "Not Found",
-    500 : "Internal Server Error",
-    503 : "Service Unavailable"
-}
-
+import webhttp.consts as Consts
 
 class Message(object):
     """Class that stores a HTTP Message"""
@@ -63,7 +47,7 @@ class Message(object):
 
         header = ""
 
-        headernames = consts.generalheaders + consts.requestheaders + consts.responseheaders + consts.entityheaders 
+        headernames = Consts.GENERAL_HEADERS + Consts.REQUEST_HEADERS + Consts.RESPONSE_HEADERS + Consts.ENTITY_HEADERS 
 
         for name in headernames:
             if self.get_header(name) != "":
@@ -113,5 +97,5 @@ class Response(Message):
         Returns:
             str: representation the can be sent over socket
         """
-        self.startline = self.version + " " + str(self.code) + " " + reasondict[self.code]             
+        self.startline = self.version + " " + str(self.code) + " " + Consts.REASON_DICT[self.code]             
         return self.startline + "\r\n" + super(Response, self).__str__()

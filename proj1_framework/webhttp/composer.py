@@ -34,6 +34,17 @@ class ResponseComposer:
         response = webhttp.message.Response()
         #print("Hi")
         print(request.uri)
+        if request.method == "GET":
+            try:
+                resource = webhttp.resource.Resource(request.uri)
+                print(resource.get_content())
+            except webhttp.resource.FileExistError:
+                print("FILE DOESNT EXISTS")
+            except webhttp.resource.FileAccessError:
+                print("FILE ACCESS WENT WRONG")
+
+            
+                
         # Stub code
         response.code = 200
         response.set_header("Content-Length", 4)

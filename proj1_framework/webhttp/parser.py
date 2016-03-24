@@ -30,9 +30,9 @@ class RequestParser:
             lines = request.split('\r\n')
             print(lines[0])
             rq = lines[0].split()
-            if len(rq) != 3 || rq[2] != "HTTP/1.1":
+            if len(rq) != 3 or rq[2] != "HTTP/1.1":
                 pass#Geen geldige request
-            else
+            else:
                 http_request.uri = rq[1]
                 http_request.method = rq[0]
             lines[0]

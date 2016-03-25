@@ -5,8 +5,10 @@ This module contains a handler class for resources.
 
 import os
 import mimetypes
-import urllib.parse
-#import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 
 class FileExistError(Exception):

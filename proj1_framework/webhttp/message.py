@@ -34,7 +34,7 @@ class Message(object):
             str: value of header, empty if header does not exist
         """
         if name in self.headerdict:
-            return self.headerdict[name]
+            return str(self.headerdict[name])
         else:
             return ""
         

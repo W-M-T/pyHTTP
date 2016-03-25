@@ -25,10 +25,8 @@ class RequestParser:
         requests = self.split_requests(buff.decode())
         http_requests = []
         for request in requests:
-            print(request)
             http_request = webhttp.message.Request()
             lines = request.split('\r\n')
-            print(lines[0])
             rq = lines[0].split()
             if len(rq) != 3:
                 pass#Geen geldige request
@@ -40,8 +38,7 @@ class RequestParser:
             for line in lines[1:]:
                 if ':' in line:
                     parts = line.split(":", 1)
-                    print (parts)
-                    http_request.set_header(parts[0], parts[1])
+                    http_request.set_header(parts[0], parts[1].lstrip())
             http_requests.append(http_request)
         
         return http_requests

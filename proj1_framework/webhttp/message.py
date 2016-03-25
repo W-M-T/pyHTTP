@@ -51,7 +51,7 @@ class Message(object):
 
         for name in headernames:
             if self.get_header(name) != "":
-                header += name + ": " + self.get_header(name) + "\r\n"
+                header += name + ": " + str(self.get_header(name)) + "\r\n"
 
         return header + "\r\n" + self.body
 

@@ -37,10 +37,10 @@ class ConnectionHandler(threading.Thread):
             print("Handling connection")
             buf = self.conn_socket.recv(4096)
             print("Received input:\n" + str(buf))
-            print("Parsing...")
             parsed_requests = self.rqparser.parse_requests(buf)
-            print("Parsed requests")
             for request in parsed_requests:
+                print("\nResult after parsing:")
+                print(request)
                 #check of de header close is
                 print("Finding response")
                 response = self.rspcomposer.compose_response(request)

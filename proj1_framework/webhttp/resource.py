@@ -5,8 +5,8 @@ This module contains a handler class for resources.
 
 import os
 import mimetypes
-#import urllib.parse
-import urlparse
+import urllib.parse
+#import urlparse
 
 
 class FileExistError(Exception):
@@ -32,8 +32,9 @@ class Resource:
         Args:
             uri (str): Uniform Resource Identifier
         """
+
         self.uri = uri
-        out = urlparse.urlparse(uri)
+        out = urllib.parse.urlparse(uri)
         self.path = os.path.join("content", out.path.lstrip("/"))
         if os.path.isdir(self.path):
             self.path = os.path.join(self.path, "index.html")

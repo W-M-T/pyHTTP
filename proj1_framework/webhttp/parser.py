@@ -34,8 +34,9 @@ class RequestParser:
                 http_request.uri = rq[1]
                 http_request.method = rq[0]
                 http_request.version = rq[2]
-            lines[0]
             for line in lines[1:]:
+                if len(line) == 0:
+                    break #De body breekt nu aan, maar die negeer je bij een request
                 if ':' in line:
                     parts = line.split(":", 1)
                     http_request.set_header(parts[0], parts[1].lstrip())
@@ -75,4 +76,24 @@ class ResponseParser:
             webhttp.Response
         """
         response = webhttp.message.Response()
+        lines = buff.split('\r\n')
+        rsp = lines[0].split()
+        if len(rsp) != 3:
+            pass#Geen geldige response
+        else:
+            response.version = rsp[0]
+            response.code = int(rsp[1])
+        bodyYet = False
+        bodyLines = []
+        for line in lines[1:]:
+            if not bodyYet:
+                if ':' in line:
+                    parts = line.split(":", 1)
+                    response.set_header(parts[0], parts[1].lstrip())
+                if len(line) == 0:
+                    bodyYet = True
+            else:
+                bodyLines.append(line)
+        response.body = '\r\n'.join(bodyLines)
+    
         return response

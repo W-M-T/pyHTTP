@@ -55,7 +55,6 @@ class TestGetRequests(unittest.TestCase):
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 404)
         self.assertFalse(response.body)
-        pass
 
     def test_caching(self):
         """GET for an existing single resource followed by a GET for that same
@@ -65,11 +64,35 @@ class TestGetRequests(unittest.TestCase):
 
     def test_extisting_index_file(self):
         """GET for a directory with an existing index.html file"""
-        pass
+        # Send the request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        self.client_socket.send(str(request).encode())
+
+        # Test response
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        self.assertEqual(response.code, 200)
+        self.assertTrue(response.body)
 
     def test_nonexistant_index_file(self):
         """GET for a directory with a non-existant index.html file"""
-        pass
+        # Send the request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/testnoindex/"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        self.client_socket.send(str(request).encode())
+
+        # Test response
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        self.assertEqual(response.code, 404)
+        self.assertFalse(response.body)
 
     def test_persistent_close(self):
         """Multiple GETs over the same (persistent) connection with the last

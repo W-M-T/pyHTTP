@@ -49,7 +49,7 @@ class ResponseComposer:
                     response.body = resource.get_content()
                     #response.set_header("Content-Length", len(compressed))
                     response.set_header("Content-Length", len(resource.get_content()))
-                    response.set_header("Content-Encoding", "gzip")
+                    #response.set_header("Content-Encoding", "gzip")
                     print(resource.get_content())
                                         
                 except webhttp.resource.FileExistError:

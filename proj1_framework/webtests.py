@@ -27,15 +27,11 @@ class TestGetRequests(unittest.TestCase):
     def test_existing_file(self):
         """GET for a single resource that exists"""
         # Send the request
-        #print("beforemakerequest")
         request = webhttp.message.Request()
         request.method = "GET"
         request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "close")
-        #print("_____________________")
-        #print(request.__str__())
-        #print("_____________________")
         self.client_socket.send(str(request).encode())
 
         # Test response
@@ -46,6 +42,19 @@ class TestGetRequests(unittest.TestCase):
 
     def test_nonexistant_file(self):
         """GET for a single resource that does not exist"""
+        # Send the request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/nofilewiththisnameright.html"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        self.client_socket.send(str(request).encode())
+
+        # Test response
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        self.assertEqual(response.code, 404)
+        self.assertFalse(response.body)
         pass
 
     def test_caching(self):

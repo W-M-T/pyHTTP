@@ -53,10 +53,10 @@ class ResponseComposer:
                     print(resource.get_content())
                                         
                 except webhttp.resource.FileExistError:
-                    print("FILE DOESNT EXISTS")
+                    print("FILE DOESNT EXIST")
                     response.code = 404
                     errmsg = "404 " + webhttp.consts.REASON_DICT[404]
-                    response.body = errmsg
+                    #response.body = errmsg
                     response.set_header("Content-Length", len(errmsg))
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
                                         

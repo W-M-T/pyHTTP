@@ -77,12 +77,11 @@ class ResponseParser:
         """
         response = webhttp.message.Response()
         lines = buff.decode().split('\r\n')
+
         rsp = lines[0].split()
-        if len(rsp) != 3:
-            pass#Geen geldige response
-        else:
-            response.version = rsp[0]
-            response.code = int(rsp[1])
+        response.version = rsp[0]
+        response.code = int(rsp[1])
+
         bodyYet = False
         bodyLines = []
         for line in lines[1:]:
@@ -95,5 +94,4 @@ class ResponseParser:
             else:
                 bodyLines.append(line)
         response.body = '\r\n'.join(bodyLines)
-    
         return response

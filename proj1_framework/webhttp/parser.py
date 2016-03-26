@@ -76,7 +76,7 @@ class ResponseParser:
             webhttp.Response
         """
         response = webhttp.message.Response()
-        lines = buff.split('\r\n')
+        lines = buff.decode().split('\r\n')
         rsp = lines[0].split()
         if len(rsp) != 3:
             pass#Geen geldige response

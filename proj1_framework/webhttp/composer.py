@@ -50,8 +50,10 @@ class ResponseComposer:
                     #response.set_header("Content-Length", len(compressed))
                     response.set_header("Content-Length", len(resource.get_content()))
                     #response.set_header("Content-Encoding", "gzip")
-                    print(resource.get_content())
-                                        
+                    response.set_header("ETag", resource.generate_etag())
+                    #print(resource.get_content())
+                    print(response)
+
                 except webhttp.resource.FileExistError:
                     print("FILE DOESNT EXIST")
                     response.code = 404

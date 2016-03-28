@@ -5,6 +5,8 @@ This module contains a handler class for resources.
 
 import os
 import mimetypes
+import hashlib
+
 try:
     import urlparse
 except ImportError:
@@ -52,7 +54,12 @@ class Resource:
             str: ETag for the resource
         """
         stat = os.stat(self.path)
-        etag = ""
+        metadata = str(stat.st_ino) + str(stat.st_mtime) + str(stat.st_size)
+        
+        h = hashlib.sha1()
+        h.update(metadata)
+        etag = str(h.hexdigest())
+        
         return etag
 
     def get_content(self):

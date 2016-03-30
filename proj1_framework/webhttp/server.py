@@ -100,11 +100,13 @@ class Server:
                 except (BlockingIOError, socket.timeout):
                     pass
         else:
-            self.acceptcon(s)
+            while not self.done:
+                self.acceptcon(s)
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
         #Ook connection handlers beeindigen?
         for ch in self.connlist:#niet hoe het hoort
+            #ch heeft geen functie exit...
             ch.exit()
         self.done = True

@@ -43,16 +43,21 @@ class ResponseComposer:
                 try:#Gebruik de header "Accept" uit de request nog
                     resource = webhttp.resource.Resource(request.uri)
                     response.code = 200
-                    response.set_header("Content-Type", resource.get_content_type())
-                    #compressed = self.gzip_encode(resource.get_content())
-                    #response.body = compressed
-                    response.body = resource.get_content()
-                    #response.set_header("Content-Length", len(compressed))
-                    response.set_header("Content-Length", len(resource.get_content()))
-                    #response.set_header("Content-Encoding", "gzip")
-                    response.set_header("ETag", resource.generate_etag())
-                    #print(resource.get_content())
-                    print(response)
+                    etag = resource.generate_etag()
+                    if etag == request.get_header("If-None-Match"):
+                        response.code = 304
+                        print(response)
+                    else:
+                        response.set_header("Content-Type", resource.get_content_type())
+                        #compressed = self.gzip_encode(resource.get_content())
+                        #response.body = compressed
+                        response.body = resource.get_content()
+                        #response.set_header("Content-Length", len(compressed))
+                        response.set_header("Content-Length", len(resource.get_content()))
+                        #response.set_header("Content-Encoding", "gzip")
+                        response.set_header("ETag", etag)
+                        #print(resource.get_content())
+                        print(response)
 
                 except webhttp.resource.FileExistError:
                     print("FILE DOESNT EXIST")

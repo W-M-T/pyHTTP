@@ -35,7 +35,6 @@ class ResponseComposer:
 
         """
         response = webhttp.message.Response()
-        #print("Hi")
         print(request.uri)
         if request.version != "HTTP/1.1":
             response.code = 505
@@ -49,22 +48,17 @@ class ResponseComposer:
                         response.code = 304
                     else:
                         response.set_header("Content-Type", resource.get_content_type())
-                        #compressed = self.gzip_encode(resource.get_content())
-                        #response.body = compressed
                         print("Content: ")
                         print(resource.get_content())
                         response.body = resource.get_content()
+                        
                         #TODO: checken of hij zegt dat hij gzip wil of dat hij hem juist absoluut niet wil
                         if "gzip" in request.get_header("Accept-Encoding"):
-                            print("Encoding with gzip")
                             response.body = self.gzip_encode(response.body)
-                        #print("Encoding with gzip")
-                        self.gzip_encode(response.body)
-                        #response.set_header("Content-Length", len(compressed))
+                            response.set_header("Content-Encoding", "gzip")
+
                         response.set_header("Content-Length", len(resource.get_content()))
-                        response.set_header("Content-Encoding", "gzip")
                         response.set_header("ETag", etag)
-                        #print(resource.get_content())
 
                 except webhttp.resource.FileExistError:
                     print("FILE DOESNT EXIST")

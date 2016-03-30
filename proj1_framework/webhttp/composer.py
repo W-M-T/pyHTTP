@@ -10,6 +10,7 @@ import webhttp.message
 import webhttp.resource
 import webhttp.consts
 import gzip
+import StringIO
 
 
 class ResponseComposer:
@@ -46,18 +47,24 @@ class ResponseComposer:
                     etag = resource.generate_etag()
                     if etag == request.get_header("If-None-Match"):
                         response.code = 304
-                        print(response)
                     else:
                         response.set_header("Content-Type", resource.get_content_type())
                         #compressed = self.gzip_encode(resource.get_content())
                         #response.body = compressed
+                        print("Content: ")
+                        print(resource.get_content())
                         response.body = resource.get_content()
+                        #TODO: checken of hij zegt dat hij gzip wil of dat hij hem juist absoluut niet wil
+                        if "gzip" in request.get_header("Accept-Encoding"):
+                            print("Encoding with gzip")
+                            response.body = self.gzip_encode(response.body)
+                        #print("Encoding with gzip")
+                        self.gzip_encode(response.body)
                         #response.set_header("Content-Length", len(compressed))
                         response.set_header("Content-Length", len(resource.get_content()))
-                        #response.set_header("Content-Encoding", "gzip")
+                        response.set_header("Content-Encoding", "gzip")
                         response.set_header("ETag", etag)
                         #print(resource.get_content())
-                        print(response)
 
                 except webhttp.resource.FileExistError:
                     print("FILE DOESNT EXIST")
@@ -84,9 +91,12 @@ class ResponseComposer:
         print(response)
         return response
 
-    def gzip_encode(self, string):
-        sbytes = gzip.compress(bytes(string, 'utf-8'))
-        s_out = sbytes.decode(encoding='utf-8')
+    def gzip_encode(self, s):
+        out = StringIO.StringIO()
+        with gzip.GzipFile(fileobj=out, mode="w") as inp:
+            inp.write(s)
+        return out.getvalue()
+
 
     def make_date_string(self):
         """Make string of date and time

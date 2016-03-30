@@ -45,8 +45,8 @@ class ConnectionHandler(threading.Thread):
                 print("Finding response")
                 response = self.rspcomposer.compose_response(request)
                 print("Sending response")
-                #print(response)
-                self.conn_socket.send(str(response).encode())
+                #print(response
+                self.conn_socket.send(str(response)) #heb de encode() weggehaald want die had ruzie met unicode
                 
         except (socket.timeout, socket.error):
             pass

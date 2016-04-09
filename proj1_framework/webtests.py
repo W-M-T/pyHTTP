@@ -38,7 +38,7 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 200)
-        self.assertTrue(response.body)
+        self.assertTrue(response.body)#Misschien testen dat de body gelijk is aan de content van de resource ofzo?
 
     def test_nonexistant_file(self):
         """GET for a single resource that does not exist"""

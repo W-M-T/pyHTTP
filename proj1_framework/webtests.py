@@ -4,6 +4,8 @@ import sys
 
 import webhttp.message
 import webhttp.parser
+import webhttp.consts
+import webhttp.resource
 
 
 portnr = 8001
@@ -34,11 +36,14 @@ class TestGetRequests(unittest.TestCase):
         request.set_header("Connection", "close")
         self.client_socket.send(str(request).encode())
 
+        #Get the resource to compare
+        wantedres = webhttp.resource.Resource("/test/index.html")
+        
         # Test response
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 200)
-        self.assertTrue(response.body)#Misschien testen dat de body gelijk is aan de content van de resource ofzo?
+        self.assertEqual(response.body, wantedres.get_content())#Misschien testen dat de body gelijk is aan de content van de resource ofzo?
 
     def test_nonexistant_file(self):
         """GET for a single resource that does not exist"""
@@ -54,7 +59,7 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 404)
-        self.assertFalse(response.body)
+        self.assertEqual(response.body, "404 " + webhttp.consts.REASON_DICT[404])
 
     def test_caching(self):
         """GET for an existing single resource followed by a GET for that same
@@ -62,7 +67,7 @@ class TestGetRequests(unittest.TestCase):
         """
         pass
 
-    def test_extisting_index_file(self):
+    def test_existing_index_file(self):
         """GET for a directory with an existing index.html file"""
         # Send the request
         request = webhttp.message.Request()
@@ -92,7 +97,7 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 404)
-        self.assertFalse(response.body)
+        self.assertEqual(response.body, "404 " + webhttp.consts.REASON_DICT[404])
 
     def test_persistent_close(self):
         """Multiple GETs over the same (persistent) connection with the last
@@ -108,10 +113,29 @@ class TestGetRequests(unittest.TestCase):
         pass
 
     def test_encoding(self):
-        """GET which requests an existing resource using gzip encodign, which
+        """GET which requests an existing resource using gzip encoding, which
         is accepted by the server.
         """
-        pass
+        # Send the request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        request.set_header("Accept-Encoding", "gzip")
+        self.client_socket.send(str(request).encode())
+
+        #Get the resource to compare
+        wantedres = webhttp.resource.Resource("/test/index.html")
+
+        # Test response
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        self.assertEqual(response.code, 200)
+        self.assertEqual(response.get_header("Encoding"), "gzip")
+
+        #TODO Decompress the gzip
+        self.assertTrue(response.body)
 
 
 if __name__ == "__main__":

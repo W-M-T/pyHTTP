@@ -46,7 +46,7 @@ class ConnectionHandler(threading.Thread):
                 response = self.rspcomposer.compose_response(request)
                 print("Sending response")
                 #print(response
-                self.conn_socket.send(str(response)) #heb de encode() weggehaald want die had ruzie met unicode
+                self.conn_socket.send(str(response).encode())
                 
         except (socket.timeout, socket.error):
             pass
@@ -106,7 +106,6 @@ class Server:
     def shutdown(self):
         """Safely shut down the HTTP server"""
         #Ook connection handlers beeindigen?
-        for ch in self.connlist:#niet hoe het hoort
-            #ch heeft geen functie exit...
-            ch.exit()
+        #for ch in self.connlist:
+        #    ch.exit()
         self.done = True

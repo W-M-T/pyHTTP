@@ -57,7 +57,7 @@ class Resource:
         metadata = str(stat.st_ino) + str(stat.st_mtime) + str(stat.st_size)
         
         h = hashlib.sha1()
-        h.update(metadata)
+        h.update(metadata.encode())
         etag = str(h.hexdigest())
         
         return etag
@@ -68,7 +68,10 @@ class Resource:
         Returns:
             str: Contents of the resource
         """
-        return open(self.path).read()
+        file = open(self.path)
+        str = file.read()
+        file.close()
+        return str
 
     def get_content_type(self):
         """Get the content type, i.e "text/html"

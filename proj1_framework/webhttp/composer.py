@@ -10,7 +10,12 @@ import webhttp.message
 import webhttp.resource
 import webhttp.consts
 import gzip
-import StringIO
+import json
+try:
+    import StringIO as sIO
+except ImportError:
+    import io as sIO
+
 
 
 class ResponseComposer:
@@ -38,6 +43,7 @@ class ResponseComposer:
         print(request.uri)
         if request.version != "HTTP/1.1":
             response.code = 505
+            response.body = "Please upgrade your browser to support HTTP/1.1!"
         else:
             if request.method == "GET":
                 try:#Gebruik de header "Accept" uit de request nog
@@ -51,7 +57,9 @@ class ResponseComposer:
                         print("Content: ")
                         print(resource.get_content())
                         response.body = resource.get_content()
-                        
+
+                        #TODO check via resource.get_encoding of het al geëncode is en stuur het mee
+                        #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
                         #TODO: checken of hij zegt dat hij gzip wil of dat hij hem juist absoluut niet wil
                         if "gzip" in request.get_header("Accept-Encoding"):
                             response.body = self.gzip_encode(response.body)
@@ -64,7 +72,7 @@ class ResponseComposer:
                     print("FILE DOESNT EXIST")
                     response.code = 404
                     errmsg = "404 " + webhttp.consts.REASON_DICT[404]
-                    #response.body = errmsg
+                    response.body = errmsg
                     response.set_header("Content-Length", len(errmsg))
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
                                         
@@ -72,6 +80,7 @@ class ResponseComposer:
                     print("FILE ACCESS WENT WRONG")
                     response.code = 500
                     errmsg = "500 " + webhttp.consts.REASON_DICT[500]
+                    response.body = errmsg
                     response.set_header("Content-Length", len(errmsg))
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
 
@@ -81,12 +90,12 @@ class ResponseComposer:
         #response.set_header("Content-Length", 0)
         #response.set_header("Connection", "close")
         #set datetime
-        #response.body = "Test"
+        response.set_header("Date", self.make_date_string())
         print(response)
         return response
 
     def gzip_encode(self, s):
-        out = StringIO.StringIO()
+        out = sIO.StringIO()
         with gzip.GzipFile(fileobj=out, mode="w") as inp:
             inp.write(s)
         return out.getvalue()

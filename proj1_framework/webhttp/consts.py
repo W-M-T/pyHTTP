@@ -1,7 +1,7 @@
 GENERAL_HEADERS = ["Cache-Control", "Connection", "Date", "Pragma", "Trailer", "Transfer-encoding",
  "Upgrade", "Via", "Warning"]
 
-REQUEST_HEADERS = ["Accept", "Accept-Charset", "Accept-Encoding", "Accept-Language", "Authorization",
+REQUEST_HEADERS = ["Accept", "Accept-Charset", "Accept-Encoding", "Accept-Language", "Authorization","DNT",
  "Expect", "From", "Host", "If-Match", "If-Modified-Since", "If-None-Match", "If-Range",
  "If-Unmodified-Since", "Max-Forwards", "Proxy-Authorization", "Range", "Referer", "TE", "User-Agent"]
 

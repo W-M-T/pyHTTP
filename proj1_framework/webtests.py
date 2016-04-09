@@ -62,11 +62,40 @@ class TestGetRequests(unittest.TestCase):
         self.assertEqual(response.code, 404)
         self.assertEqual(response.body, "404 " + webhttp.consts.REASON_DICT[404])
 
-    def test_caching(self):
+    def test_caching(self):#IMPLEMENTEER NOG CACHE CORRECTNESS https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
         """GET for an existing single resource followed by a GET for that same
         resource with caching utilized on the client/tester side
         """
-        pass
+        # Send the first request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/index.html"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")#Dit is geen test van persistence
+        self.client_socket.send(str(request).encode())
+
+        # Get the etag
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        etag = response.get_header("ETag")
+
+        # Send the second request
+        self.client_socket.shutdown(socket.SHUT_RDWR)
+        self.client_socket.close()
+        self.setUp()#Dit is geen test van persistence
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/index.html"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        request.set_header("If-None-Match", etag)
+        self.client_socket.send(str(request).encode())
+
+        # Test response
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        self.assertEqual(response.code, 304)
+        self.assertFalse(response.body)
 
     def test_existing_index_file(self):
         """GET for a directory with an existing index.html file"""
@@ -135,7 +164,7 @@ class TestGetRequests(unittest.TestCase):
         self.assertEqual(response.code, 200)
         self.assertEqual(response.get_header("Content-Encoding"), "gzip")
 
-        #TODO Decompress the gzip
+        #Compare the decompressed data with the original data
         decoded = webhttp.composer.gzip_decode(response.body)
         self.assertEquals(wantedres.get_content(), decoded)
 

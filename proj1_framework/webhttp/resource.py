@@ -57,7 +57,7 @@ class Resource:
         metadata = str(stat.st_ino) + str(stat.st_mtime) + str(stat.st_size)
         
         h = hashlib.sha1()
-        h.update(metadata.encode())
+        h.update(metadata)#.encode()
         etag = str(h.hexdigest())
         
         return etag

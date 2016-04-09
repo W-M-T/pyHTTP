@@ -10,7 +10,6 @@ import webhttp.message
 import webhttp.resource
 import webhttp.consts
 import gzip
-import json
 try:
     import StringIO as sIO
 except ImportError:

@@ -6,6 +6,7 @@ import webhttp.message
 import webhttp.parser
 import webhttp.consts
 import webhttp.resource
+import webhttp.composer
 
 
 portnr = 8001
@@ -132,10 +133,11 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 200)
-        self.assertEqual(response.get_header("Encoding"), "gzip")
+        self.assertEqual(response.get_header("Content-Encoding"), "gzip")
 
         #TODO Decompress the gzip
-        self.assertTrue(response.body)
+        decoded = webhttp.composer.gzip_decode(response.body)
+        self.assertEquals(wantedres.get_content(), decoded)
 
 
 if __name__ == "__main__":

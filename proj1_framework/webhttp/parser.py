@@ -22,7 +22,7 @@ class RequestParser:
         Returns:
             list of webhttp.Request
         """
-        requests = self.split_requests(buff.decode())
+        requests = self.split_requests(buff)#.decode()
         http_requests = []
         for request in requests:
             http_request = webhttp.message.Request()
@@ -76,7 +76,7 @@ class ResponseParser:
             webhttp.Response
         """
         response = webhttp.message.Response()
-        lines = buff.decode().split('\r\n')
+        lines = buff.split('\r\n')#.decode()
 
         rsp = lines[0].split()
         response.version = rsp[0]

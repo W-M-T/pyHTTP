@@ -56,11 +56,11 @@ class ResponseComposer:
                     else:
                         response.set_header("Content-Type", resource.get_content_type())
 
-                        #TODO check via resource.get_encoding of het al geëncode is en stuur het mee
+                        #TODO check via resource.get_encoding of het al geencode is en stuur het mee
                         #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
                         #TODO: checken of hij zegt dat hij gzip wil of dat hij hem juist absoluut niet wil
                         if "gzip" in request.get_header("Accept-Encoding") and sys.version_info < (3,0):#Geen gzip voor python 3
-                            response.body = self.gzip_encode(response.body)
+                            response.body = gzip_encode(response.body)
                             response.set_header("Content-Encoding", "gzip")
                         else:
                             response.body = resource.get_content()
@@ -97,13 +97,6 @@ class ResponseComposer:
         print(response)
         return response
 
-    def gzip_encode(self, s):
-        out = sIO.StringIO()
-        with gzip.GzipFile(fileobj=out, mode="w") as inp:
-            inp.write(s)
-        return out.getvalue()
-
-
     def make_date_string(self):
         """Make string of date and time
         
@@ -111,3 +104,17 @@ class ResponseComposer:
             str: formatted string of date and time
         """
         return time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+
+def gzip_encode(s):
+    out = sIO.StringIO()
+    with gzip.GzipFile(fileobj=out, mode="w") as inp:
+        inp.write(s)
+    return out.getvalue()
+
+def gzip_decode(s):
+    out = sIO.StringIO(s)
+    string = gzip.GzipFile('', 'r', 0, sIO.StringIO(s)).read()
+    with gzip.GzipFile(fileobj=out, mode="r") as inp:
+        #string = inp.read()
+        pass
+    return string

@@ -10,7 +10,6 @@ import platform
 from webhttp import parser
 from webhttp import composer
 
-
 class ConnectionHandler(threading.Thread):
     """Connection Handler for HTTP Server"""
  
@@ -45,7 +44,7 @@ class ConnectionHandler(threading.Thread):
                 print("Finding response")
                 response = self.rspcomposer.compose_response(request)
                 print("Sending response")
-                self.conn_socket.send(str(response).encode())
+                self.conn_socket.send(str(response))#.decode
                 
         except (socket.timeout, socket.error):
             pass
@@ -96,7 +95,7 @@ class Server:
             while not self.done:
                 try:
                     self.acceptcon(s)
-                except (BlockingIOError, socket.timeout):
+                except (OSError, socket.timeout):#BlockingIOError
                     pass
         else:
             while not self.done:

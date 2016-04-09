@@ -45,7 +45,6 @@ class ConnectionHandler(threading.Thread):
                 print("Finding response")
                 response = self.rspcomposer.compose_response(request)
                 print("Sending response")
-                #print(response
                 self.conn_socket.send(str(response).encode())
                 
         except (socket.timeout, socket.error):

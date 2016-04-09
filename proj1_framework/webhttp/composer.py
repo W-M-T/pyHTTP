@@ -59,7 +59,7 @@ class ResponseComposer:
                         #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
                         #TODO: checken of hij zegt dat hij gzip wil of dat hij hem juist absoluut niet wil
                         if "gzip" in request.get_header("Accept-Encoding") and sys.version_info < (3,0):#Geen gzip voor python 3
-                            response.body = gzip_encode(response.body)
+                            response.body = gzip_encode(resource.get_content())
                             response.set_header("Content-Encoding", "gzip")
                         else:
                             response.body = resource.get_content()

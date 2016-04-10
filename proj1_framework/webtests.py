@@ -168,6 +168,9 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         self.assertFalse(message)
 
+        #Restart connection, just to prevent tearDown from throwing an exception
+        self.setUp()
+
     def test_encoding(self):
         """GET which requests an existing resource using gzip encoding, which
         is accepted by the server.

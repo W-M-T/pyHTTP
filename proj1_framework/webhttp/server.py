@@ -37,6 +37,7 @@ class ConnectionHandler(threading.Thread):
         sock_open = True
         while sock_open:
             try:
+                print("[+] - Ready to receive request.")
                 buf = self.conn_socket.recv(4096)
                 if not buf:
                     print("[-] - Connection was reset.")

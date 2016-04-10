@@ -16,8 +16,6 @@ except ImportError:
     import io as sIO
 import sys
 
-
-
 class ResponseComposer:
     """Class that composes a HTTP response to a HTTP request"""
 
@@ -84,6 +82,7 @@ class ResponseComposer:
                         
                         
                         response.set_header("ETag", etag)
+                        response.set_header("Last-Modified", resource.get_last_modified())
 
                 except webhttp.resource.FileExistError:
                     print("[-] - File doesn't exist.")
@@ -116,7 +115,7 @@ class ResponseComposer:
         Returns:
             str: formatted string of date and time
         """
-        return time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+        return time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
 
 def gzip_encode(s):
     out = sIO.StringIO()

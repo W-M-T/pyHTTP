@@ -43,7 +43,7 @@ class ConnectionHandler(threading.Thread):
             self.conn_socket.send(str(response))
             print("[+] - Response sent.")
 
-            if request.get_header("Connection") == "close":
+            if request.get_header("Connection") == "close" or response.get_header("Connection") == "close":#rfc
                 print("[+] - Closing socket because requested.")
                 self.sock_open = False
                 self.conn_socket.shutdown(socket.SHUT_RDWR)

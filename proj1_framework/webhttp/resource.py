@@ -6,6 +6,7 @@ This module contains a handler class for resources.
 import os
 import mimetypes
 import hashlib
+import datetime
 
 try:
     import urlparse
@@ -61,6 +62,10 @@ class Resource:
         etag = str(h.hexdigest())
         
         return etag
+
+    def get_last_modified(self):
+        lastmod = datetime.datetime.fromtimestamp(os.stat(self.path).st_mtime)
+        return lastmod.strftime("%a, %d %b %Y %H:%M:%S GMT")
 
     def get_content(self):
         """Get the contents of the resource

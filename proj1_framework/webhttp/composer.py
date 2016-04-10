@@ -64,21 +64,21 @@ class ResponseComposer:
                             if encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
                                 response.body = resource.get_content()
                             else:
-                                print("CLIENT DOESNT ACCEPT KNOWN ENCODING")
+                                print("[-] - Client doesn't accept any known encoding.")
                                 response.code = 406
                                 errmsg = "406 " + webhttp.consts.REASON_DICT[406]
                                 response.body = errmsg
                                 response.set_header("Content-Length", len(errmsg))
                                 response.set_header("Content-Type", "text/html; charset=UTF-8")
                             
-                        print("Content: ")
-                        print(response.body)
+                        #print("[*] - Response content: ")
+                        #print(response.body)
                         
                         response.set_header("Content-Length", len(resource.get_content()))
                         response.set_header("ETag", etag)
 
                 except webhttp.resource.FileExistError:
-                    print("FILE DOESNT EXIST")
+                    print("[-] - File doesn't exist.")
                     response.code = 404
                     errmsg = "404 " + webhttp.consts.REASON_DICT[404]
                     response.body = errmsg
@@ -86,7 +86,7 @@ class ResponseComposer:
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
                                         
                 except webhttp.resource.FileAccessError:
-                    print("FILE ACCESS WENT WRONG")
+                    print("[-] - Failed to access file.")
                     response.code = 500
                     errmsg = "500 " + webhttp.consts.REASON_DICT[500]
                     response.body = errmsg
@@ -100,7 +100,6 @@ class ResponseComposer:
         #response.set_header("Connection", "close")
         #set datetime
         response.set_header("Date", self.make_date_string())
-        print(response)
         return response
 
     def make_date_string(self):

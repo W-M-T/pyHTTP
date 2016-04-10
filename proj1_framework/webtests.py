@@ -71,7 +71,7 @@ class TestGetRequests(unittest.TestCase):
         request.method = "GET"
         request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
-        request.set_header("Connection", "close")#Dit is geen test van persistence
+        #request.set_header("Connection", "close")#Dit is geen test van persistence
         self.client_socket.send(str(request).encode())
 
         # Get the etag
@@ -80,9 +80,9 @@ class TestGetRequests(unittest.TestCase):
         etag = response.get_header("ETag")
 
         # Send the second request
-        self.client_socket.shutdown(socket.SHUT_RDWR)
-        self.client_socket.close()
-        self.setUp()#Dit is geen test van persistence
+        #self.client_socket.shutdown(socket.SHUT_RDWR)
+        #self.client_socket.close()
+        #self.setUp()#Dit is geen test van persistence
         request = webhttp.message.Request()
         request.method = "GET"
         request.uri = "/test/index.html"

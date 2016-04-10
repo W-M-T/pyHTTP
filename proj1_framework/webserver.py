@@ -16,11 +16,11 @@ if __name__ == '__main__':
     server = webhttp.server.Server(args.address, args.port, args.timeout)
     try:
         server.run()
-        print("END")
+        print("[*] - Server ended.")
     except KeyboardInterrupt:
-        print ("TRY TO SHUT DOWN")
+        print ("\n[*] - Trying to shut down.")
         server.shutdown()
-        print ("SHUTTING DOWN")
+        print ("[*] - Shutting down.")
         time.sleep(1)
             
 

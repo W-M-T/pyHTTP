@@ -57,21 +57,28 @@ class ResponseComposer:
 
                         #TODO check via resource.get_encoding of het al geencode is en stuur het mee
                         #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
-                        #TODO: checken of hij zegt dat hij gzip wil of dat hij hem juist absoluut niet wil
-                        if "gzip" in request.get_header("Accept-Encoding") and sys.version_info < (3,0):#Geen gzip voor python 3
+                        if encoding_acceptable(request.get_header("Accept-Encoding"), "gzip") and sys.version_info < (3,0):#Geen gzip voor python 3
                             response.body = gzip_encode(resource.get_content())
                             response.set_header("Content-Encoding", "gzip")
                         else:
-                            response.body = resource.get_content()
+                            if encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
+                                response.body = resource.get_content()
+                            else:
+                                print("[-] - Client doesn't accept any known encoding.")
+                                response.code = 406
+                                errmsg = "406 " + webhttp.consts.REASON_DICT[406]
+                                response.body = errmsg
+                                response.set_header("Content-Length", len(errmsg))
+                                response.set_header("Content-Type", "text/html; charset=UTF-8")
                             
-                        print("Content: ")
-                        print(response.body)
+                        #print("[*] - Response content: ")
+                        #print(response.body)
                         
                         response.set_header("Content-Length", len(resource.get_content()))
                         response.set_header("ETag", etag)
 
                 except webhttp.resource.FileExistError:
-                    print("FILE DOESNT EXIST")
+                    print("[-] - File doesn't exist.")
                     response.code = 404
                     errmsg = "404 " + webhttp.consts.REASON_DICT[404]
                     response.body = errmsg
@@ -79,7 +86,7 @@ class ResponseComposer:
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
                                         
                 except webhttp.resource.FileAccessError:
-                    print("FILE ACCESS WENT WRONG")
+                    print("[-] - Failed to access file.")
                     response.code = 500
                     errmsg = "500 " + webhttp.consts.REASON_DICT[500]
                     response.body = errmsg
@@ -93,7 +100,6 @@ class ResponseComposer:
         #response.set_header("Connection", "close")
         #set datetime
         response.set_header("Date", self.make_date_string())
-        print(response)
         return response
 
     def make_date_string(self):
@@ -117,3 +123,24 @@ def gzip_decode(s):
         #string = inp.read()
         pass
     return string
+
+def encoding_acceptable(header, enc):
+    """Check if the Accept-Encoding header states that gzip is acceptable
+
+    Returns:
+        bool: True if gzip is acceptable; False otherwise
+    """
+    encodings = header.split(",")
+    if encodings != ['']:
+        for encoding in encodings:
+            if enc in encoding or (enc not in encoding and "*" in encoding):
+                    parts = encoding.split(";")
+                    if len(parts) == 1:
+                        return True;
+                    else:
+                        qval = parts[1].replace("q=", "", 1).strip()
+                        try:
+                            return (float(qval) > 0)
+                        except:
+                            return False;
+    return enc == "identity"

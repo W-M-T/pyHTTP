@@ -34,6 +34,7 @@ REASON_DICT = {
     402 : "Payment Required",
     403 : "Forbidden",
     404 : "Not Found",
+    406 : "Not Acceptable",
     418 : "I'm a teapot",
     500 : "Internal Server Error",
     501 : "Not implemented",

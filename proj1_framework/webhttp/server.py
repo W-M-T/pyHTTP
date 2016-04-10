@@ -4,6 +4,7 @@ This module contains a HTTP server
 """
 
 import threading
+import time
 import socket
 import select
 import platform
@@ -33,21 +34,31 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket.settimeout(self.timeout)
         try:
             """Handle a new connection"""
-            print("Handling connection")
+            print("[+] - Handling new connection")
             buf = self.conn_socket.recv(4096)
-            print("Received input:\n" + str(buf))
+            #print("Received input:\n" + str(buf))
+            #time.sleep(16)
             parsed_requests = self.rqparser.parse_requests(buf)
             for request in parsed_requests:
-                print("\nResult after parsing:")
+                print("[*] - Result after parsing:\n")
                 print(request)
-                #check of de header close is
-                print("Finding response")
-                response = self.rspcomposer.compose_response(request)
-                print("Sending response")
-                self.conn_socket.send(str(response))#.decode
+
+                if "close" in request.get_header("Connection"):
+                    print("[+] - Closing socket because requested.")
+                    self.conn_socket.close()
+                else:
+                    #check of de header close is
+                    print("[*] - Finding response.")
+                    response = self.rspcomposer.compose_response(request)
+                    print("[*] - Composed response:\n")
+                    print(response)
+                    print("[*] - Sending response.")
+                    self.conn_socket.send(str(response))
+                    print("[+] - Response sent.")
                 
         except (socket.timeout, socket.error):
-            pass
+            print("[-] - Socket timed out.")
+            
         self.conn_socket.close()#timeout nog regelen
         
     def run(self):
@@ -85,8 +96,12 @@ class Server:
     def run(self):
         """Run the HTTP Server and start listening"""
         #socket.settimeout(timeout)
-        print("server hello")
+        print("[+] - Server up and running.")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        #Allows sockets to be re-used right away and fixes the "Address still in use" error
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
         s.bind((self.hostname, self.server_port))#try catch enzo nog
         s.listen(10)#parameter maken?
 

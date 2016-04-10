@@ -31,12 +31,12 @@ class ConnectionHandler(threading.Thread):
         self.rspcomposer = rspcomposer
     
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
+        print("[+] - Handling new connection")
         self.conn_socket.settimeout(self.timeout)
         sock_open = True
         while sock_open:
             try:
-                """Handle a new connection"""
-                print("[+] - Handling new connection")
+                print("[+] - Ready to receive request.")
                 buf = self.conn_socket.recv(4096)
                 parsed_requests = self.rqparser.parse_requests(buf)
                 for request in parsed_requests:

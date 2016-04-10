@@ -33,6 +33,8 @@ class ConnectionHandler(threading.Thread):
 
     def handle_data(self, data):
         for request in self.rqparser.parse_requests(data):
+            if not sock_open:
+                break
             print("[*] - Result after parsing:\n")
             print(request)
             print("[*] - Finding response.")
@@ -46,7 +48,6 @@ class ConnectionHandler(threading.Thread):
             if request.get_header("Connection") == "close":
                 print("[+] - Closing socket because requested.")
                 self.sock_open = False
-                return
 
 
     def handle_connection(self):#Op het moment nog geen persistence/pipelining

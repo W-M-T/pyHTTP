@@ -33,18 +33,17 @@ class ConnectionHandler(threading.Thread):
 
     def handle_data(self, data):
         for request in self.rqparser.parse_requests(data):
-            print("[*] - Received request for: " + str(request.uri) + ".")
-            #print("[*] - Result after parsing:\n")
-            #print(request)
+            print("[*] - Result after parsing:\n")
+            print(request)
             print("[*] - Finding response.")
             response = self.rspcomposer.compose_response(request)
-            print("[+] - Composed response with code: " + str(response.code) + ".")
-            #print(response)
+            print("[+] - Composed response.")
+            print(response)
             print("[*] - Sending response.")
             self.conn_socket.send(str(response))
             print("[+] - Response sent.")
 
-            if "close" in request.get_header("Connection"):
+            if request.get_header("Connection") == "close":
                 print("[+] - Closing socket because requested.")
                 self.sock_open = False
                 return
@@ -56,7 +55,7 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket.settimeout(self.timeout)
         try:
             while self.sock_open:
-                print("\n[*] - Waiting for data")
+                print("[*] - Waiting for data")
                 data = self.conn_socket.recv(1024)
                 if not data:
                     print("[-] - Connection was reset.")
@@ -77,6 +76,7 @@ class ConnectionHandler(threading.Thread):
         except socket.error, e:
             print("Error handling connection: " + str(e))
         
+
 class Server:
     """HTTP Server"""
 
@@ -124,7 +124,6 @@ class Server:
         else:
             while not self.done:
                 self.acceptcon(s)
-        s.close()
     
     def shutdown(self):
         """Safely shut down the HTTP server"""

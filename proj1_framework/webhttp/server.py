@@ -50,12 +50,14 @@ class ConnectionHandler(threading.Thread):
 
 
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
+        """Handle a new connection"""
         print("[+] - Handling new connection")
         self.conn_socket.settimeout(self.timeout)
         try:
             while self.sock_open:
                 data = self.conn_socket.recv(4096)
                 if not data:
+                    print("[-] - Connection was reset.")
                     break
                 else:
                     self.handle_data(data)                  

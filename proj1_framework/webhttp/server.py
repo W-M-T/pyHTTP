@@ -30,7 +30,7 @@ class ConnectionHandler(threading.Thread):
         self.rqparser = rqparser
         self.rspcomposer = rspcomposer
         self.sock_open = True
-    
+
     def handle_data(self, data):
         for request in self.rqparser.parse_requests(data):
             print("[*] - Result after parsing:\n")
@@ -55,13 +55,13 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket.settimeout(self.timeout)
         try:
             while self.sock_open:
-                data = self.conn_socket.recv(4096)
+                data = self.conn_socket.recv(1024)
                 if not data:
                     print("[-] - Connection was reset.")
                     break
                 else:
                     self.handle_data(data)                  
-        except (socket.timeout, socket.error):
+        except (socket.timeout):
             print("[-] - Socket timed out. Closing socket.")
             sock_open = False
         finally:
@@ -93,7 +93,7 @@ class Server:
         self.done = False
         self.rqparser = parser.RequestParser()
         self.rspcomposer = composer.ResponseComposer(timeout)
-        
+        self.s = None
         self.connlist = []
 
     def acceptcon(self, s):
@@ -105,29 +105,28 @@ class Server:
         
     def run(self):
         """Run the HTTP Server and start listening"""
-        #socket.settimeout(timeout)
         print("[+] - Server up and running.")
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         #Allows sockets to be re-used right away and fixes the "Address still in use" error
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        s.bind((self.hostname, self.server_port))#try catch enzo nog
-        s.listen(10)#parameter maken?
+        self.s.bind((self.hostname, self.server_port))#try catch enzo nog
+        self.s.listen(10)#parameter maken?
 
         if platform.system() == 'Windows':
-            s.settimeout(1)
+            self.s.settimeout(1)
             while not self.done:
                 try:
-                    self.acceptcon(s)
+                    self.acceptcon(self.s)
                 except (OSError, socket.timeout):#BlockingIOError
                     pass
         else:
             while not self.done:
-                self.acceptcon(s)
+                self.acceptcon(self.s)
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
+        self.s.shutdown(socket.SHUT_RDWR)
+        self.s.close()
         self.done = True

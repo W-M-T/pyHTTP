@@ -16,6 +16,8 @@ except ImportError:
     import io as sIO
 import sys
 
+
+
 class ResponseComposer:
     """Class that composes a HTTP response to a HTTP request"""
 
@@ -38,6 +40,7 @@ class ResponseComposer:
 
         """
         response = webhttp.message.Response()
+        print(request.uri)
         if request.version != "HTTP/1.1":
             response.code = 505
             response.body = "Please upgrade your browser to support HTTP/1.1!"
@@ -47,7 +50,11 @@ class ResponseComposer:
                     resource = webhttp.resource.Resource(request.uri)
                     response.code = 200
                     etag = resource.generate_etag()
+                    print(request)
+                    print(request.get_header("If-None-Match"))
+                    print(etag)
                     if etag == request.get_header("If-None-Match"):#VOLG DE RFC OVER ETAGS (IF MATCH (+syntax)
+                        
                         response.code = 304
                     else:
                         response.set_header("Content-Type", resource.get_content_type())

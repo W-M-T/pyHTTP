@@ -79,9 +79,10 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         etag = response.get_header("ETag")
+        #print(etag)
 
         self.assertEqual(response.code, 200)
-        self.assertFalse(response.body)
+        self.assertTrue(response.body)
 
         # Send the second request
         self.tearDown()

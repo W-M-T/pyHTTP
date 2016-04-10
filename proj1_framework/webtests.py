@@ -137,7 +137,34 @@ class TestGetRequests(unittest.TestCase):
         """Multiple GETs over the same (persistent) connection with the last
         GET prompting closing the connection, the connection should be closed.
         """
-        pass
+        # Send the request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/shuckle.jpg"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "keep-alive")#Not even necessary, same effect as nothing in the rfc
+        self.client_socket.send(str(request).encode())
+
+
+        # Remove the response from the buffer
+        message = self.client_socket.recv(1024)
+
+        # Send the closing request and clear the buffer
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/shuckle.jpg"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        self.client_socket.send(str(request).encode())
+        message = self.client_socket.recv(1024)
+
+        # Test if the connection is still alive
+        self.client_socket.send(str(request).encode())
+        message = self.client_socket.recv(1024)
+        self.assertFalse(message)
+
+        #Restart connection, just to prevent tearDown from throwing an exception
+        self.setUp()
 
     def test_persistent_timeout(self):
         """Multiple GETs over the same (persistent) connection, followed by a

@@ -58,8 +58,9 @@ class ResponseComposer:
                         #TODO check via resource.get_encoding of het al geencode is en stuur het mee
                         #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
                         if encoding_acceptable(request.get_header("Accept-Encoding"), "gzip") and sys.version_info < (3,0):#Geen gzip voor python 3
-                            response.body = gzip_encode(resource.get_content())
-                            response.set_header("Content-Encoding", "gzip")
+                            #response.body = gzip_encode(resource.get_content())
+                            response.body = resource.get_content()
+                            #response.set_header("Content-Encoding", "gzip")
                         else:
                             if encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
                                 response.body = resource.get_content()

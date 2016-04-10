@@ -55,6 +55,7 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket.settimeout(self.timeout)
         try:
             while self.sock_open:
+                print("[*] - Waiting for data")
                 data = self.conn_socket.recv(4096)
                 if not data:
                     print("[-] - Connection was reset.")
@@ -93,7 +94,6 @@ class Server:
         self.done = False
         self.rqparser = parser.RequestParser()
         self.rspcomposer = composer.ResponseComposer(timeout)
-        
         self.connlist = []
 
     def acceptcon(self, s):
@@ -113,7 +113,7 @@ class Server:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         s.bind((self.hostname, self.server_port))#try catch enzo nog
-        s.listen(10)#parameter maken?
+        s.listen(5)#parameter maken?
 
         if platform.system() == 'Windows':
             s.settimeout(1)
@@ -128,6 +128,5 @@ class Server:
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
+        print("SHUCKLE GREETS THEE")
         self.done = True

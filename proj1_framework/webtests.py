@@ -175,7 +175,7 @@ class TestGetRequests(unittest.TestCase):
         # Send the request
         request = webhttp.message.Request()
         request.method = "GET"
-        request.uri = "/test/shuckle.jpg"
+        request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "keep-alive")#Not even necessary, same effect as nothing in the rfc
         self.client_socket.send(str(request).encode())
@@ -190,7 +190,8 @@ class TestGetRequests(unittest.TestCase):
         self.assertTrue(message)
 
         #Wait
-        time.sleep(20)
+        time.sleep(25)
+
 
         # Test if the connection is still alive
         self.client_socket.send(str(request).encode())
@@ -225,7 +226,6 @@ class TestGetRequests(unittest.TestCase):
         #Compare the decompressed data with the original data
         decoded = webhttp.composer.gzip_decode(response.body)
         self.assertEquals(wantedres.get_content(), decoded)
-
 
 if __name__ == "__main__":
     # Parse command line arguments

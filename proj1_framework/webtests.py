@@ -28,7 +28,6 @@ class TestGetRequests(unittest.TestCase):
         self.client_socket.shutdown(socket.SHUT_RDWR)
         self.client_socket.close()
 
-    '''
     def test_existing_file(self):
         """GET for a single resource that exists"""
         # Send the request
@@ -132,7 +131,7 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 404)
-        self.assertEqual(response.body, "404 " + webhttp.consts.REASON_DICT[404])'''
+        self.assertEqual(response.body, "404 " + webhttp.consts.REASON_DICT[404])
 
     def test_persistent_close(self):
         """Multiple GETs over the same (persistent) connection with the last
@@ -141,7 +140,7 @@ class TestGetRequests(unittest.TestCase):
         # Send the request
         request = webhttp.message.Request()
         request.method = "GET"
-        request.uri = "/test/shuckle.jpg"
+        request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "keep-alive")#Not even necessary, same effect as nothing in the rfc
         self.client_socket.send(str(request).encode())
@@ -153,7 +152,7 @@ class TestGetRequests(unittest.TestCase):
         # Send the closing request and clear the buffer
         request = webhttp.message.Request()
         request.method = "GET"
-        request.uri = "/test/shuckle.jpg"
+        request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "close")
         self.client_socket.send(str(request).encode())
@@ -167,7 +166,6 @@ class TestGetRequests(unittest.TestCase):
         #Restart connection, just to prevent tearDown from throwing an exception
         self.setUp()
 
-    '''
     def test_persistent_timeout(self):
         """Multiple GETs over the same (persistent) connection, followed by a
         wait during which the connection times out, the connection should be
@@ -177,7 +175,7 @@ class TestGetRequests(unittest.TestCase):
         # Send the request
         request = webhttp.message.Request()
         request.method = "GET"
-        request.uri = "/test/shuckle.jpg"
+        request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
         request.set_header("Connection", "keep-alive")#Not even necessary, same effect as nothing in the rfc
         self.client_socket.send(str(request).encode())
@@ -228,8 +226,6 @@ class TestGetRequests(unittest.TestCase):
         #Compare the decompressed data with the original data
         decoded = webhttp.composer.gzip_decode(response.body)
         self.assertEquals(wantedres.get_content(), decoded)
-        '''
-
 
 if __name__ == "__main__":
     # Parse command line arguments

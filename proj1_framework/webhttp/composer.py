@@ -50,7 +50,7 @@ class ResponseComposer:
                     resource = webhttp.resource.Resource(request.uri)
                     response.code = 200
                     etag = resource.generate_etag()
-                    if etag == request.get_header("If-None-Match"):
+                    if etag == request.get_header("If-None-Match"):#VOLG DE RFC OVER ETAGS (IF MATCH (+syntax)
                         response.code = 304
                     else:
                         response.set_header("Content-Type", resource.get_content_type())

@@ -29,42 +29,49 @@ class ConnectionHandler(threading.Thread):
         self.timeout = timeout
         self.rqparser = rqparser
         self.rspcomposer = rspcomposer
+        self.sock_open = True
     
+    def handle_data(self, data):
+        for request in self.rqparser.parse_requests(data):
+            print("[*] - Result after parsing:\n")
+            print(request)
+            print("[*] - Finding response.")
+            response = self.rspcomposer.compose_response(request)
+            print("[+] - Composed response.")
+            print(response)
+            print("[*] - Sending response.")
+            self.conn_socket.send(str(response))
+            print("[+] - Response sent.")
+
+            if "close" in request.get_header("Connection"):
+                print("[+] - Closing socket because requested.")
+                self.sock_open = False
+                return
+
+
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
         print("[+] - Handling new connection")
         self.conn_socket.settimeout(self.timeout)
-        sock_open = True
-        while sock_open:
-            try:
-                print("[+] - Ready to receive request.")
-                buf = self.conn_socket.recv(4096)
-                parsed_requests = self.rqparser.parse_requests(buf)
-                for request in parsed_requests:
-                    if sock_open:
-                        print("[*] - Result after parsing:\n")
-                        print(request)
+        try:
+            while self.sock_open:
+                data = self.conn_socket.recv(4096)
+                if not data:
+                    break
+                else:
+                    self.handle_data(data)                  
+        except (socket.timeout, socket.error):
+            print("[-] - Socket timed out. Closing socket.")
+            sock_open = False
+        finally:
+            self.conn_socket.shutdown(socket.SHUT_RDWR)
+            self.conn_socket.close()
 
-                        if "close" in request.get_header("Connection"):
-                            print("[+] - Closing socket because requested.")
-                            sock_open = False
-                        else:
-                            print("[*] - Finding response.")
-                            response = self.rspcomposer.compose_response(request)
-                            print("[+] - Composed response.")
-                            print(response)
-                            print("[*] - Sending response.")
-                            self.conn_socket.send(str(response))
-                            print("[+] - Response sent.")
-            except (socket.timeout, socket.error):
-                print("[-] - Socket timed out. Closing socket.")
-                sock_open = False
-
-            
-        self.conn_socket.close()#timeout nog regelen
-        
     def run(self):
         """Run the thread of the connection handler"""
-        self.handle_connection()
+        try:
+            self.handle_connection()
+        except socket.error, e:
+            print("Error handling connection: " + str(e))
         
 
 class Server:
@@ -119,7 +126,6 @@ class Server:
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
-        #Ook connection handlers beeindigen?
-        #for ch in self.connlist:
-        #    ch.exit()
+        self.socket.shutdown(socket.SHUT_RDWR)
+        self.socket.close()
         self.done = True

@@ -31,35 +31,40 @@ class ConnectionHandler(threading.Thread):
         self.rspcomposer = rspcomposer
     
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
+        """Handle a new connection"""
+        print("[+] - Handling new connection")
         self.conn_socket.settimeout(self.timeout)
         sock_open = True
         while sock_open:
             try:
-                """Handle a new connection"""
-                print("[+] - Handling new connection")
                 buf = self.conn_socket.recv(4096)
+                if not buf:
+                    print("[-] - Connection was reset.")
+                    break
+                print(self.conn_socket.gettimeout())
+                #print(buf)
                 parsed_requests = self.rqparser.parse_requests(buf)
                 for request in parsed_requests:
                     if sock_open:
                         print("[*] - Result after parsing:\n")
                         print(request)
-
-                        if "close" in request.get_header("Connection"):
+                        print(request.get_header("Connection"))
+                        if request.get_header("Connection") == "close":
                             print("[+] - Closing socket because requested.")
                             sock_open = False
-                        else:
-                            print("[*] - Finding response.")
-                            response = self.rspcomposer.compose_response(request)
-                            print("[+] - Composed response.")
-                            print(response)
-                            print("[*] - Sending response.")
-                            self.conn_socket.send(str(response))
-                            print("[+] - Response sent.")
+                        print("[*] - Finding response.")
+                        response = self.rspcomposer.compose_response(request)
+                        print("[+] - Composed response.")
+                        print(response)
+                        print("[*] - Sending response.")
+                        self.conn_socket.send(str(response))
+                        print("[+] - Response sent.")
             except (socket.timeout, socket.error):
-                print("[-] - Socket timed out. Closing socket.")
-                sock_open = False
-
-            
+                print("[-] - Socket timed out.")
+                break
+                
+        print("[*] - Closing socket")
+        self.conn_socket.shutdown(socket.SHUT_RDWR)
         self.conn_socket.close()#timeout nog regelen
         
     def run(self):

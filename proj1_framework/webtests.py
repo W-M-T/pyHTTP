@@ -189,7 +189,7 @@ class TestGetRequests(unittest.TestCase):
         self.assertTrue(message)
 
         #Wait
-        time.sleep(16)
+        time.sleep(25)
 
         # Test if the connection is still alive
         self.client_socket.send(str(request).encode())

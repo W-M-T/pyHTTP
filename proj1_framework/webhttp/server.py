@@ -55,6 +55,7 @@ class ConnectionHandler(threading.Thread):
         self.conn_socket.settimeout(self.timeout)
         try:
             while self.sock_open:
+                print("[*] - Waiting for data")
                 data = self.conn_socket.recv(1024)
                 if not data:
                     print("[-] - Connection was reset.")
@@ -93,7 +94,6 @@ class Server:
         self.done = False
         self.rqparser = parser.RequestParser()
         self.rspcomposer = composer.ResponseComposer(timeout)
-        self.s = None
         self.connlist = []
 
     def acceptcon(self, s):
@@ -111,8 +111,8 @@ class Server:
         #Allows sockets to be re-used right away and fixes the "Address still in use" error
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        self.s.bind((self.hostname, self.server_port))#try catch enzo nog
-        self.s.listen(10)#parameter maken?
+        s.bind((self.hostname, self.server_port))#try catch enzo nog
+        s.listen(5)#parameter maken?
 
         if platform.system() == 'Windows':
             self.s.settimeout(1)
@@ -127,6 +127,5 @@ class Server:
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
-        self.s.shutdown(socket.SHUT_RDWR)
-        self.s.close()
+        print("SHUCKLE GREETS THEE")
         self.done = True

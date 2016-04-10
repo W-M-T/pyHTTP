@@ -58,11 +58,14 @@ class ResponseComposer:
                         #TODO check via resource.get_encoding of het al geencode is en stuur het mee
                         #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
                         if encoding_acceptable(request.get_header("Accept-Encoding"), "gzip") and sys.version_info < (3,0):#Geen gzip voor python 3
-                            #response.body = gzip_encode(resource.get_content())
-                            response.body = resource.get_content()
-                            #response.set_header("Content-Encoding", "gzip")
+                            response.body = gzip_encode(resource.get_content())
+                            response.set_header("Content-Encoding", "gzip")
+                            response.set_header("Content-Length", len(response.body))
                         else:
                             if encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
+                                print(len(resource.get_content()))
+                                print(resource.get_content_length())
+                                response.set_header("Content-Length", resource.get_content_length())
                                 response.body = resource.get_content()
                             else:
                                 print("[-] - Client doesn't accept any known encoding.")
@@ -75,7 +78,7 @@ class ResponseComposer:
                         #print("[*] - Response content: ")
                         #print(response.body)
                         
-                        response.set_header("Content-Length", len(resource.get_content()))
+                        
                         response.set_header("ETag", etag)
 
                 except webhttp.resource.FileExistError:

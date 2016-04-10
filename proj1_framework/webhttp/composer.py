@@ -16,8 +16,6 @@ except ImportError:
     import io as sIO
 import sys
 
-
-
 class ResponseComposer:
     """Class that composes a HTTP response to a HTTP request"""
 
@@ -40,7 +38,6 @@ class ResponseComposer:
 
         """
         response = webhttp.message.Response()
-        print(request.uri)
         if request.version != "HTTP/1.1":
             response.code = 505
             response.body = "Please upgrade your browser to support HTTP/1.1!"

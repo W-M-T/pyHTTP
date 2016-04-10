@@ -106,24 +106,24 @@ class Server:
     def run(self):
         """Run the HTTP Server and start listening"""
         print("[+] - Server up and running.")
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         #Allows sockets to be re-used right away and fixes the "Address still in use" error
-        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         s.bind((self.hostname, self.server_port))#try catch enzo nog
         s.listen(5)#parameter maken?
 
         if platform.system() == 'Windows':
-            self.s.settimeout(1)
+            s.settimeout(1)
             while not self.done:
                 try:
-                    self.acceptcon(self.s)
+                    self.acceptcon(s)
                 except (OSError, socket.timeout):#BlockingIOError
                     pass
         else:
             while not self.done:
-                self.acceptcon(self.s)
+                self.acceptcon(s)
     
     def shutdown(self):
         """Safely shut down the HTTP server"""

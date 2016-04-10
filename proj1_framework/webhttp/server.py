@@ -64,7 +64,7 @@ class ConnectionHandler(threading.Thread):
                     self.handle_data(data)                  
         except (socket.timeout):
             print("[-] - Socket timed out. Closing socket.")
-            sock_open = False
+            self.sock_open = False
         finally:
             self.conn_socket.shutdown(socket.SHUT_RDWR)
             self.conn_socket.close()

@@ -38,7 +38,10 @@ class ConnectionHandler(threading.Thread):
         while sock_open:
             try:
                 print("[+] - Ready to receive request.")
-                buf = self.conn_socket.recv(4096)
+                buf = self.conn_socket.recv(1024)#4096
+                print(buf)
+                #buf2 = self.conn_socket.recv(4096)
+                #print(buf2)
                 if not buf:
                     print("[-] - Connection was reset.")
                     break
@@ -49,7 +52,6 @@ class ConnectionHandler(threading.Thread):
                     if sock_open:
                         print("[*] - Result after parsing:\n")
                         print(request)
-                        print(request.get_header("Connection"))
                         if request.get_header("Connection") == "close":
                             print("[+] - Closing socket because requested.")
                             sock_open = False

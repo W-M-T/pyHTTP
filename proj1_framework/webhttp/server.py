@@ -43,14 +43,18 @@ class ConnectionHandler(threading.Thread):
                 print("[*] - Result after parsing:\n")
                 print(request)
 
-                #check of de header close is
-                print("[*] - Finding response.")
-                response = self.rspcomposer.compose_response(request)
-                print("[*] - Composed response:\n")
-                print(response)
-                print("[*] - Sending response.")
-                self.conn_socket.send(str(response))
-                print("[+] - Response sent.")
+                if "close" in request.get_header("Connection"):
+                    print("[+] - Closing socket because requested.")
+                    self.conn_socket.close()
+                else:
+                    #check of de header close is
+                    print("[*] - Finding response.")
+                    response = self.rspcomposer.compose_response(request)
+                    print("[*] - Composed response:\n")
+                    print(response)
+                    print("[*] - Sending response.")
+                    self.conn_socket.send(str(response))
+                    print("[+] - Response sent.")
                 
         except (socket.timeout, socket.error):
             print("[-] - Socket timed out.")

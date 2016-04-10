@@ -57,11 +57,11 @@ class ResponseComposer:
                         if encoding_acceptable(request.get_header("Accept-Encoding"), "gzip") and sys.version_info < (3,0):#Geen gzip voor python 3
                             response.body = gzip_encode(resource.get_content())
                             response.set_header("Content-Encoding", "gzip")
-                            response.set_header("Content-Length", len(response.body))
+                            response.set_header("Content-Length", resource.get_content_length())
                         else:
                             if encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
-                                print(len(resource.get_content()))
-                                print(resource.get_content_length())
+                                #print(len(resource.get_content()))The same in linux, not the same in windows
+                                #print(resource.get_content_length())
                                 response.set_header("Content-Length", resource.get_content_length())
                                 response.body = resource.get_content()
                             else:

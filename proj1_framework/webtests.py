@@ -44,7 +44,7 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 200)
-        self.assertEqual(response.body, wantedres.get_content())#Misschien testen dat de body gelijk is aan de content van de resource ofzo?
+        self.assertEqual(response.body, wantedres.get_content())
 
     def test_nonexistant_file(self):
         """GET for a single resource that does not exist"""
@@ -71,7 +71,7 @@ class TestGetRequests(unittest.TestCase):
         request.method = "GET"
         request.uri = "/test/index.html"
         request.set_header("Host", "localhost:{}".format(portnr))
-        #request.set_header("Connection", "close")#Dit is geen test van persistence
+        request.set_header("Connection", "close")#Dit is geen test van persistence
         self.client_socket.send(str(request).encode())
 
         # Get the etag
@@ -79,10 +79,12 @@ class TestGetRequests(unittest.TestCase):
         response = self.parser.parse_response(message)
         etag = response.get_header("ETag")
 
+        self.assertEqual(response.code, 200)
+        self.assertFalse(response.body)
+
         # Send the second request
-        #self.client_socket.shutdown(socket.SHUT_RDWR)
-        #self.client_socket.close()
-        #self.setUp()#Dit is geen test van persistence
+        self.tearDown()
+        self.setUp()#Dit is geen test van persistence
         request = webhttp.message.Request()
         request.method = "GET"
         request.uri = "/test/index.html"
@@ -140,7 +142,30 @@ class TestGetRequests(unittest.TestCase):
         wait during which the connection times out, the connection should be
         closed.
         """
-        pass
+        # Send the request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/shuckle.jpg"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "keep-alive")#Not even necessary, same effect as nothing in the rfc
+        self.client_socket.send(str(request).encode())
+
+
+        # Remove the response from the buffer
+        message = self.client_socket.recv(1024)
+
+        # Test if the connection is still alive
+        self.client_socket.send(str(request).encode())
+        message = self.client_socket.recv(1024)
+        self.assertTrue(message)
+
+        #Wait
+        time.sleep(16)
+
+        # Test if the connection is still alive
+        self.client_socket.send(str(request).encode())
+        message = self.client_socket.recv(1024)
+        self.assertFalse(message)
 
     def test_encoding(self):
         """GET which requests an existing resource using gzip encoding, which

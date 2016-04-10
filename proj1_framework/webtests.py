@@ -1,6 +1,7 @@
 import unittest
 import socket
 import sys
+import time
 
 import webhttp.message
 import webhttp.parser

@@ -51,7 +51,7 @@ class ConnectionHandler(threading.Thread):
                             print("[*] - Finding response.")
                             response = self.rspcomposer.compose_response(request)
                             print("[+] - Composed response.")
-                            #print(response)
+                            print(response)
                             print("[*] - Sending response.")
                             self.conn_socket.send(str(response))
                             print("[+] - Response sent.")

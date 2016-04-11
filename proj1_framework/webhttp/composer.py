@@ -77,14 +77,13 @@ class ResponseComposer:
                                 response.body = resource.get_content()
                                 
                             response.set_header("Content-Encoding", "gzip")
-                            response.set_header("Content-Length", len(response.body))
+                            
                             
                         elif encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
                             #Gzip is not acceptable, but identity is
                             
                             #print(len(resource.get_content()))The same in linux, not the same in windows
                             #print(resource.get_content_length())
-                            response.set_header("Content-Length", resource.get_content_length())
                             response.body = resource.get_content()
                         else:
                             #No encoding we support is accepted
@@ -93,7 +92,6 @@ class ResponseComposer:
                             response.code = 406
                             errmsg = "406 " + webhttp.consts.REASON_DICT[406]
                             response.body = errmsg
-                            response.set_header("Content-Length", len(errmsg))
                             response.set_header("Content-Type", "text/html; charset=UTF-8")
                             
                         #print("[*] - Response content: ")
@@ -104,7 +102,6 @@ class ResponseComposer:
                     response.code = 404
                     errmsg = "404 " + webhttp.consts.REASON_DICT[404]
                     response.body = errmsg
-                    response.set_header("Content-Length", len(errmsg))
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
                                         
                 except webhttp.resource.FileAccessError:
@@ -112,11 +109,11 @@ class ResponseComposer:
                     response.code = 500
                     errmsg = "500 " + webhttp.consts.REASON_DICT[500]
                     response.body = errmsg
-                    response.set_header("Content-Length", len(errmsg))
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
 
-        #Set the date header
+        #Set the date header and content length
         response.set_header("Date", self.make_date_string())
+        response.set_header("Content-Length", len(response.body))
         return response
 
     def make_date_string(self):

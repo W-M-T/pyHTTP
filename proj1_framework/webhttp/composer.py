@@ -52,7 +52,10 @@ class ResponseComposer:
                     print(request.get_header("If-None-Match"))
                     print(etag)
 
-                    if (match_etag(request.get_header("If-None-Match"), etag)):
+                    if request.get_header("If-Match") != "" and \
+                    not match_etag(request.get_header("If-Match"), etag):
+                        response.code = 412
+                    if match_etag(request.get_header("If-None-Match"), etag):
                         response.code = 304
                     else:
                         #We need to send a response with a body

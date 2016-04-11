@@ -43,7 +43,7 @@ class ConnectionHandler(threading.Thread):
             self.conn_socket.send(str(response))
             print("[+] - Response sent.")
 
-            if request.get_header("Connection") == "close":
+            if request.get_header("Connection") == "close" or response.get_header("Connection") == "close":#rfc
                 print("[+] - Closing socket because requested.")
                 self.sock_open = False
                 self.conn_socket.shutdown(socket.SHUT_RDWR)
@@ -113,15 +113,18 @@ class Server:
         #Allows sockets to be re-used right away and fixes the "Address still in use" error
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        s.bind((self.hostname, self.server_port))#try catch enzo nog
+        #Bind the server socket to the hostname and port
+        s.bind((self.hostname, self.server_port))
         s.listen(5)#parameter maken?
 
+        #OS-specific listening, because windows seems to ignore keyboard interrupts during blocking socket operations
+        #Please note that this webserver primarily targets Linux
         if platform.system() == 'Windows':
             s.settimeout(1)
             while not self.done:
                 try:
                     self.acceptcon(s)
-                except (OSError, socket.timeout):#BlockingIOError
+                except (OSError, socket.timeout):#BlockingIOError in python 3
                     pass
         else:
             while not self.done:
@@ -130,4 +133,5 @@ class Server:
     def shutdown(self):
         """Safely shut down the HTTP server"""
         print("SHUCKLE GREETS THEE")
+        #Don't shut down the connection handlers
         self.done = True

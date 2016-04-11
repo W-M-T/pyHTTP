@@ -16,8 +16,6 @@ except ImportError:
     import io as sIO
 import sys
 
-
-
 class ResponseComposer:
     """Class that composes a HTTP response to a HTTP request"""
 
@@ -83,7 +81,8 @@ class ResponseComposer:
                         #print(response.body)
                         
                         
-                        response.set_header("ETag", etag)
+                        response.set_header("ETag", "\"" + etag + "\"")#rfc
+                        response.set_header("Last-Modified", resource.get_last_modified())
 
                 except webhttp.resource.FileExistError:
                     print("[-] - File doesn't exist.")
@@ -116,7 +115,7 @@ class ResponseComposer:
         Returns:
             str: formatted string of date and time
         """
-        return time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+        return time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
 
 def gzip_encode(s):
     out = sIO.StringIO()
@@ -131,6 +130,9 @@ def gzip_decode(s):
         #string = inp.read()
         pass
     return string
+
+def decodeTime(timestring):
+    eut.parsedate(timestring)
 
 def encoding_acceptable(header, enc):
     """Check if the Accept-Encoding header states that gzip is acceptable

@@ -8,6 +8,7 @@ therefore we chose to continue writing code in Python 2.7. Some tests for the se
 provided in webtests.py.
 
 
+
 RUNNING AND OPTIONS:
 
 The server and tests can be run from command line with several optional parameters.
@@ -24,9 +25,10 @@ Where:
 
 
 CONNECTION HANDLING:
+
 The server listens for new connections in the main thread. When a connection is made, a seperate thread is made to handle that connection.
 This new thread, the connectionhandler listens for requests and sends back responses until
-either the socket times out or the connection is closed by the client. Pipelining works because the network buffer is never cleared.
+Either the socket times out or the connection is closed by the client. Pipelining works because the network buffer is never cleared.
 Requests are parsed and handed to the responsecomposer, which, as its name suggests, composes a response based on a request.
 Every response (even an error) gets the headers "Date" and "Content-Length" at the last moment before it is sent.
 If a request does not use HTTP 1.1 or the "GET"-method, a corresponding error-statuscode is sent back as a response.
@@ -38,14 +40,11 @@ If the resource's ETag matches none of the tags in If-Match, or it matches any o
 corresponding error-statuscode is sent back as a response.
 In the case that no error has happened at this point, we set the headers "Content-Type", "ETag" and "Last-Modified" of the response, in accordance
 with the resource.
-we check the requested encodings. If the requested encoding is gzip, we check if the resource is already encoded with gzip.
+We check the requested encodings. If the requested encoding is gzip, we check if the resource is already encoded with gzip.
 In case it is not, we encode the file and set it as the response body. If it is already encoded it is directly put in the response body.
 Also, the header "Content-Encoding" is set to gzip.
 In case the requested encoding is not gzip and identity is allowed, the response body is set to the resource content.
 If no supported encoding is accepted, a corresponding error-statuscode is sent back as a response.
-
-
-
 
 
 
@@ -71,7 +70,7 @@ Sent when none of the ETags specified in the If-Match header match the ETag of t
 * 500 Internal Server Error
 Sent when the requested resource exists, but cannot be accessed.
 
-* 501 Not implemented
+* 501 Not Implemented
 Sent when the request does not use the method "GET"
 
 * 505 HTTP Version not supported

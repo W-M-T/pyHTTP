@@ -94,7 +94,7 @@ class TestGetRequests(unittest.TestCase):
         request.set_header("If-None-Match", etag)
         self.client_socket.send(str(request).encode())
 
-        def test_caching_if_match(self):
+    def test_caching_if_match(self):
         """GET for an existing single resource followed by a GET for that same
         resource with caching utilized on the client/tester side
         DIFFERENCE WITH THE OTHER TEST: USES IF-MATCH INSTEAD OF IF-NONE-MATCH
@@ -110,7 +110,6 @@ class TestGetRequests(unittest.TestCase):
         # Get the etag
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
-
         self.assertEqual(response.code, 200)
         self.assertTrue(response.body)
 
@@ -125,11 +124,28 @@ class TestGetRequests(unittest.TestCase):
         request.set_header("If-Match", "\"aaaaaa\", \"bbbbbbb\"")
         self.client_socket.send(str(request).encode())
 
-        # Test response
+        # Test to see if the response indicates there was no match
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         self.assertEqual(response.code, 412)
         self.assertFalse(response.body)
+
+        # Send the third request
+        self.tearDown()
+        self.setUp()#Dit is geen test van persistence
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/index.html"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        request.set_header("If-Match", etag)
+        self.client_socket.send(str(request).encode())
+
+        # Test to see if the response indicates there was a match
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+        self.assertEqual(response.code, 200)
+        self.assertTrue(response.body)
 
     def test_existing_index_file(self):
         """GET for a directory with an existing index.html file"""

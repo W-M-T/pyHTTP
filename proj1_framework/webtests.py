@@ -63,7 +63,7 @@ class TestGetRequests(unittest.TestCase):
         self.assertEqual(response.code, 404)
         self.assertEqual(response.body, "404 " + webhttp.consts.REASON_DICT[404])
 
-    def test_caching(self):#IMPLEMENTEER NOG CACHE CORRECTNESS https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
+    def test_caching_if_none_match(self):
         """GET for an existing single resource followed by a GET for that same
         resource with caching utilized on the client/tester side
         """
@@ -79,7 +79,6 @@ class TestGetRequests(unittest.TestCase):
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
         etag = response.get_header("ETag")
-        #print(etag)
 
         self.assertEqual(response.code, 200)
         self.assertTrue(response.body)
@@ -95,10 +94,41 @@ class TestGetRequests(unittest.TestCase):
         request.set_header("If-None-Match", etag)
         self.client_socket.send(str(request).encode())
 
+        def test_caching_if_match(self):
+        """GET for an existing single resource followed by a GET for that same
+        resource with caching utilized on the client/tester side
+        DIFFERENCE WITH THE OTHER TEST: USES IF-MATCH INSTEAD OF IF-NONE-MATCH
+        """
+        # Send the first request
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/index.html"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")#Dit is geen test van persistence
+        self.client_socket.send(str(request).encode())
+
+        # Get the etag
+        message = self.client_socket.recv(1024)
+        response = self.parser.parse_response(message)
+
+        self.assertEqual(response.code, 200)
+        self.assertTrue(response.body)
+
+        # Send the second request
+        self.tearDown()
+        self.setUp()#Dit is geen test van persistence
+        request = webhttp.message.Request()
+        request.method = "GET"
+        request.uri = "/test/index.html"
+        request.set_header("Host", "localhost:{}".format(portnr))
+        request.set_header("Connection", "close")
+        request.set_header("If-Match", "\"aaaaaa\", \"bbbbbbb\"")
+        self.client_socket.send(str(request).encode())
+
         # Test response
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
-        self.assertEqual(response.code, 304)
+        self.assertEqual(response.code, 412)
         self.assertFalse(response.body)
 
     def test_existing_index_file(self):

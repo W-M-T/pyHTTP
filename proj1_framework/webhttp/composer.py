@@ -85,7 +85,7 @@ class ResponseComposer:
                             #No encoding we support is accepted
                             
                             print("[-] - Client doesn't accept any known encoding.")
-                            response.code = 406
+                            response.code = 406#This piece of code is repeated and could easily be a method
                             errmsg = "406 " + webhttp.consts.REASON_DICT[406]
                             response.body = errmsg
                             response.set_header("Content-Type", "text/html; charset=UTF-8")
@@ -106,7 +106,11 @@ class ResponseComposer:
                     errmsg = "500 " + webhttp.consts.REASON_DICT[500]
                     response.body = errmsg
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
-
+            else:
+                response.code = 501
+                errmsg = "501 " + webhttp.consts.REASON_DICT[501]
+                response.body = errmsg
+                response.set_header("Content-Type", "text/html; charset=UTF-8")
         #Set the date header and content length
         response.set_header("Date", self.make_date_string())
         response.set_header("Content-Length", len(response.body))

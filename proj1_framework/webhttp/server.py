@@ -33,12 +33,9 @@ class ConnectionHandler(threading.Thread):
 
     def handle_data(self, data):
         for request in self.rqparser.parse_requests(data):
-            print("[*] - Result after parsing:\n")
-            print(request)
-            print("[*] - Finding response.")
+            print("[*] - Composing response.")
             response = self.rspcomposer.compose_response(request)
-            print("[+] - Composed response.")
-            print(response)
+            print("[+] - Response composed.")
             print("[*] - Sending response.")
             self.conn_socket.send(str(response))
             print("[+] - Response sent.")
@@ -52,7 +49,7 @@ class ConnectionHandler(threading.Thread):
 
     def handle_connection(self):#Op het moment nog geen persistence/pipelining
         """Handle a new connection"""
-        print("[+] - Handling new connection")
+        print("\n[+] - Handling new connection")
         self.conn_socket.settimeout(self.timeout)
         try:
             while self.sock_open:
@@ -133,6 +130,5 @@ class Server:
     
     def shutdown(self):
         """Safely shut down the HTTP server"""
-        print("SHUCKLE GREETS THEE")
         #Don't shut down the connection handlers
         self.done = True

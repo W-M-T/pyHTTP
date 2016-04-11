@@ -110,6 +110,7 @@ class TestGetRequests(unittest.TestCase):
         # Get the etag
         message = self.client_socket.recv(1024)
         response = self.parser.parse_response(message)
+        etag = response.get_header("ETag")
         self.assertEqual(response.code, 200)
         self.assertTrue(response.body)
 

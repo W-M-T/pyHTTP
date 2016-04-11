@@ -38,7 +38,7 @@ class ResponseComposer:
 
         """
         response = webhttp.message.Response()
-        print(request.uri)
+        print("[*] - Requested resource: " + str(request.uri) + ".")
         if request.version != "HTTP/1.1":
             response.code = 505
             response.body = "Please upgrade your browser to support HTTP/1.1!"
@@ -48,14 +48,10 @@ class ResponseComposer:
                     resource = webhttp.resource.Resource(request.uri)
                     response.code = 200
                     etag = resource.generate_etag()
-                    print(request)
-                    print(request.get_header("If-None-Match"))
-                    print(etag)
-
                     if request.get_header("If-Match") != "" and \
                     not match_etag(request.get_header("If-Match"), etag):
                         response.code = 412
-                    if match_etag(request.get_header("If-None-Match"), etag):
+                    elif match_etag(request.get_header("If-None-Match"), etag):
                         response.code = 304
                     else:
                         #We need to send a response with a body

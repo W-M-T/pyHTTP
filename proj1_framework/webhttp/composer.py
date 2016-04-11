@@ -51,8 +51,8 @@ class ResponseComposer:
                     print(request)
                     print(request.get_header("If-None-Match"))
                     print(etag)
-                    if etag == request.get_header("If-None-Match"):#VOLG DE RFC OVER ETAGS (IF MATCH (+syntax)
-                        
+
+                    if (match_etag(request.get_header("If-None-Match"), etag)):
                         response.code = 304
                     else:
                         #We need to send a response with a body
@@ -158,3 +158,10 @@ def encoding_acceptable(header, enc):
                         except:
                             return False;
     return enc == "identity"
+
+def match_etag(tags_in_header, etag):
+    taglist = [tag.strip()[1:-1] for tag in tags_in_header.split(',')]
+    for tag in taglist:
+        if tag == etag:
+            return True
+    return False

@@ -55,34 +55,46 @@ class ResponseComposer:
                         
                         response.code = 304
                     else:
-                        response.set_header("Content-Type", resource.get_content_type())
+                        #We need to send a response with a body
 
-                        #TODO check via resource.get_encoding of het al geencode is en stuur het mee
-                        #Zoek ook uit wat er moet gebeuren als accept-encoding/accept-charset/accept niet matcht
+                        #Set standard headers for responses that have a resource
+                        response.set_header("Content-Type", resource.get_content_type())
+                        response.set_header("ETag", "\"" + etag + "\"")#rfc
+                        response.set_header("Last-Modified", resource.get_last_modified())
+
+                        
                         if encoding_acceptable(request.get_header("Accept-Encoding"), "gzip") and sys.version_info < (3,0):#Geen gzip voor python 3
-                            response.body = gzip_encode(resource.get_content())
+                            #Gzip is acceptable
+                            
+                            if resource.get_content_encoding() != 'gzip':
+                                #The resource is not encoded yet
+                                response.body = gzip_encode(resource.get_content())
+                            else:
+                                #The resource is already encoded
+                                response.body = resource.get_content()
+                                
                             response.set_header("Content-Encoding", "gzip")
                             response.set_header("Content-Length", len(response.body))
+                            
+                        elif encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
+                            #Gzip is not acceptable, but identity is
+                            
+                            #print(len(resource.get_content()))The same in linux, not the same in windows
+                            #print(resource.get_content_length())
+                            response.set_header("Content-Length", resource.get_content_length())
+                            response.body = resource.get_content()
                         else:
-                            if encoding_acceptable(request.get_header("Accept-Encoding"), "identity"):
-                                #print(len(resource.get_content()))The same in linux, not the same in windows
-                                #print(resource.get_content_length())
-                                response.set_header("Content-Length", resource.get_content_length())
-                                response.body = resource.get_content()
-                            else:
-                                print("[-] - Client doesn't accept any known encoding.")
-                                response.code = 406
-                                errmsg = "406 " + webhttp.consts.REASON_DICT[406]
-                                response.body = errmsg
-                                response.set_header("Content-Length", len(errmsg))
-                                response.set_header("Content-Type", "text/html; charset=UTF-8")
+                            #No encoding we support is accepted
+                            
+                            print("[-] - Client doesn't accept any known encoding.")
+                            response.code = 406
+                            errmsg = "406 " + webhttp.consts.REASON_DICT[406]
+                            response.body = errmsg
+                            response.set_header("Content-Length", len(errmsg))
+                            response.set_header("Content-Type", "text/html; charset=UTF-8")
                             
                         #print("[*] - Response content: ")
                         #print(response.body)
-                        
-                        
-                        response.set_header("ETag", "\"" + etag + "\"")#rfc
-                        response.set_header("Last-Modified", resource.get_last_modified())
 
                 except webhttp.resource.FileExistError:
                     print("[-] - File doesn't exist.")
@@ -100,12 +112,7 @@ class ResponseComposer:
                     response.set_header("Content-Length", len(errmsg))
                     response.set_header("Content-Type", "text/html; charset=UTF-8")
 
-            
-                
-        # Stub code
-        #response.set_header("Content-Length", 0)
-        #response.set_header("Connection", "close")
-        #set datetime
+        #Set the date header
         response.set_header("Date", self.make_date_string())
         return response
 
@@ -126,9 +133,6 @@ def gzip_encode(s):
 def gzip_decode(s):
     out = sIO.StringIO(s)
     string = gzip.GzipFile('', 'r', 0, sIO.StringIO(s)).read()
-    with gzip.GzipFile(fileobj=out, mode="r") as inp:
-        #string = inp.read()
-        pass
     return string
 
 def decodeTime(timestring):

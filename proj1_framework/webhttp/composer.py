@@ -52,7 +52,10 @@ class ResponseComposer:
                     print(request.get_header("If-None-Match"))
                     print(etag)
 
-                    if (match_etag(request.get_header("If-None-Match"), etag)):
+                    if request.get_header("If-Match") != "" and \
+                    not match_etag(request.get_header("If-Match"), etag):
+                        response.code = 412
+                    if match_etag(request.get_header("If-None-Match"), etag):
                         response.code = 304
                     else:
                         #We need to send a response with a body
@@ -121,19 +124,35 @@ class ResponseComposer:
         """
         return time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
 
+
 def gzip_encode(s):
+    """Compress with gzip
+
+    Args: 
+        str: s, the string that is to be compressed
+
+    Returns:
+        str: s compressed with gzip
+
+    """
     out = sIO.StringIO()
     with gzip.GzipFile(fileobj=out, mode="w") as inp:
         inp.write(s)
     return out.getvalue()
 
 def gzip_decode(s):
+    """Decompress with gzip
+
+    Args: 
+        str: s, the string that is compressed with gzip
+
+    Returns:
+        str: s, but decompressed
+
+    """
     out = sIO.StringIO(s)
     string = gzip.GzipFile('', 'r', 0, sIO.StringIO(s)).read()
     return string
-
-def decodeTime(timestring):
-    eut.parsedate(timestring)
 
 def encoding_acceptable(header, enc):
     """Check if the Accept-Encoding header states that gzip is acceptable
@@ -157,6 +176,16 @@ def encoding_acceptable(header, enc):
     return enc == "identity"
 
 def match_etag(tags_in_header, etag):
+    """Matches the actual etag with the etags in the header
+
+    Args: 
+        str: tags_in_header, the etags in the header
+        str: etag, the etag we are comparing with
+
+    Returns:
+        bool indicating whether we found a match or not
+
+    """
     taglist = [tag.strip()[1:-1] for tag in tags_in_header.split(',')]
     for tag in taglist:
         if tag == etag:

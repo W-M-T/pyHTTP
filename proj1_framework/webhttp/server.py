@@ -99,6 +99,7 @@ class Server:
         self.connlist = []
 
     def acceptcon(self, s):
+        """Accept new connections and get a handler to handle them"""
         (client_socket, address) = s.accept()
         
         ch = ConnectionHandler(client_socket, address, self.timeout, self.rqparser, self.rspcomposer)
